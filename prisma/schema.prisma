@@ -1,0 +1,144 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Auth {
+  id      String      @id @default(uuid())
+  email   String      @unique
+  password String     @db.VarChar(100)
+  role    actorRole   
+  reNewPassword Boolean @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User[]
+
+  @@map("auths")
+}
+
+model User {
+  id      String      @id @default(uuid())
+  authId  String
+  name    String   @db.VarChar(255)
+  department String @db.VarChar(255)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  auth Auth @relation(fields: [authId], references: [id])
+  progressTicket ProgressTicket[]
+  ticketUser TicketUser[]
+  @@map("users")
+}
+
+model Ticket {
+  id      String      @id @default(uuid())
+  ticketId String      @unique
+  permitName String     @db.VarChar(255)
+  permitCategoryId Int
+  institutionId Int
+  ownerDepartmentId Int
+  Description String?
+  status   ticketStatus
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  permitCategory PermitCategory @relation(fields: [permitCategoryId], references: [id])
+  department Department @relation(fields: [ownerDepartmentId], references: [id])
+  institution Institution @relation(fields: [institutionId], references: [id])
+  progressTicket ProgressTicket[]
+  ticketUser TicketUser[]
+
+  @@map("tickets")
+}
+
+model PermitCategory {
+  id      Int      @id @default(autoincrement())
+  name    String   @db.VarChar(255)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tickets Ticket[]
+
+  @@map("permitCategories")
+}
+
+model Department {
+  id      Int      @id @default(autoincrement())
+  name    String   @db.VarChar(255)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tickets Ticket[]
+
+  @@map("departments")
+}
+
+model Institution {
+  id      Int      @id @default(autoincrement())
+  name    String   @db.VarChar(255)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tickets Ticket[]
+
+  @@map("institutions")
+}
+
+model ProgressTicket {
+  id      String      @id @default(uuid())
+  ticketId String     
+  status   ticketStatus
+  description String
+  userId String
+  urlDocs String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+  ticket Ticket @relation(fields: [ticketId], references: [id])
+
+  @@map("progressTickets")
+}
+
+model TicketUser {
+  id Int @id @default(autoincrement())
+  ticketId String
+  userId String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  ticket Ticket @relation(fields: [ticketId], references: [id])
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("ticketUsers")
+}
+
+
+
+enum actorRole {
+  USER
+  ADMIN
+  EXTERNAL_RELATION
+  MANAGEMENT
+}
+
+enum ticketStatus {
+  Preparing
+  Submitting
+  Verification
+  Feedback
+  Approval
+  Complete
+  Closed
+}
