@@ -26,4 +26,21 @@ const authMiddleware = (req, res, next) => {
   }
 };
 
-module.exports = authMiddleware;
+const roleMiddleware = (...allowedRoles) => {
+  return (req, res, next) => {
+    const { role } = req.user;
+
+    if (!allowedRoles.includes(role)) {
+      return res.status(403).json({
+        success: false,
+        error: {
+          message: "You do not have permission to access this resource",
+        },
+      });
+    }
+
+    next();
+  };
+};
+
+module.exports = { authMiddleware, roleMiddleware };

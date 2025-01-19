@@ -17,8 +17,8 @@ model Auth {
   id      String      @id @default(uuid())
   email   String      @unique
   password String     @db.VarChar(100)
-  role    actorRole   
   reNewPassword Boolean @default(false)
+  deletedAt DateTime?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -28,16 +28,21 @@ model Auth {
 }
 
 model User {
-  id      String      @id @default(uuid())
+  id      String   @id @default(uuid())
   authId  String
   name    String   @db.VarChar(255)
-  department String @db.VarChar(255)
+  // departmentId Int
+  role    actorRole 
+  deletedAt DateTime?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   auth Auth @relation(fields: [authId], references: [id])
+  // departement Department @relation(fields: [departmentId], references: [id])
   progressTicket ProgressTicket[]
   ticketUser TicketUser[]
+  permitUser PermitUser[]
+
   @@map("users")
 }
 
@@ -48,8 +53,9 @@ model Ticket {
   permitCategoryId Int
   institutionId Int
   ownerDepartmentId Int
-  Description String?
+  description String?
   status   ticketStatus
+  deletedAt DateTime?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -65,10 +71,12 @@ model Ticket {
 model PermitCategory {
   id      Int      @id @default(autoincrement())
   name    String   @db.VarChar(255)
+  deletedAt DateTime?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   tickets Ticket[]
+  permits Permit[]
 
   @@map("permitCategories")
 }
@@ -76,10 +84,13 @@ model PermitCategory {
 model Department {
   id      Int      @id @default(autoincrement())
   name    String   @db.VarChar(255)
+  deletedAt DateTime?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   tickets Ticket[]
+  // users User[]
+  permits Permit[]
 
   @@map("departments")
 }
@@ -87,16 +98,18 @@ model Department {
 model Institution {
   id      Int      @id @default(autoincrement())
   name    String   @db.VarChar(255)
+  deletedAt DateTime?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   tickets Ticket[]
+  permits Permit[]
 
   @@map("institutions")
 }
 
 model ProgressTicket {
-  id      String      @id @default(uuid())
+  id      Int @id @default(autoincrement())
   ticketId String     
   status   ticketStatus
   description String
@@ -124,6 +137,48 @@ model TicketUser {
   @@map("ticketUsers")
 }
 
+model Permit {
+  id String      @id @default(uuid())
+  permitCategoryId Int
+  ownerDepartmentId Int
+  institutionId Int
+  permitName String
+  permitNumber String
+  issuedDate DateTime
+  validityPeriod String
+  expireDate DateTime
+  description String
+  renewalRequirement String
+  notification String
+  urlDocument String
+  preparationPeriod String
+  status permitStatus
+  deletedAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  permitCategory PermitCategory @relation(fields: [permitCategoryId], references: [id])
+  department Department @relation(fields: [ownerDepartmentId], references: [id])
+  institution Institution @relation(fields: [institutionId], references: [id])
+  permitUser PermitUser[]
+
+  @@map("permits")
+}
+
+model PermitUser {
+  id Int @id @default(autoincrement())
+  permitId String
+  userId String
+  permitRole String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  permit Permit @relation(fields: [permitId], references: [id])
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("permitUsers")
+}
+
 
 
 enum actorRole {
@@ -141,4 +196,10 @@ enum ticketStatus {
   Approval
   Complete
   Closed
+}
+
+enum permitStatus {
+  Valid
+  Expired
+  Invalid
 }
