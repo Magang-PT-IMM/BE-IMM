@@ -29,7 +29,7 @@ model Auth {
 
 model User {
   id      String   @id @default(uuid())
-  authId  String
+  authId  String    @unique
   name    String   @db.VarChar(255)
   // departmentId Int
   role    actorRole 
@@ -54,7 +54,7 @@ model Ticket {
   institutionId Int
   ownerDepartmentId Int
   description String?
-  status   ticketStatus
+  status   ticketStatus?
   deletedAt DateTime?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -115,6 +115,7 @@ model ProgressTicket {
   description String
   userId String
   urlDocs String?
+  deletedAt DateTime?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -128,6 +129,8 @@ model TicketUser {
   id Int @id @default(autoincrement())
   ticketId String
   userId String
+  ticketRole String
+  deletedAt DateTime?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

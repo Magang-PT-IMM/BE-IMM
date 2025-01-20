@@ -14,7 +14,7 @@ const authMiddleware = (req, res, next) => {
 
   try {
     const decoded = verifyToken(token);
-    req.user = decoded;
+    res.user = decoded;
     next();
   } catch (error) {
     return res.status(401).json({
@@ -28,7 +28,7 @@ const authMiddleware = (req, res, next) => {
 
 const roleMiddleware = (...allowedRoles) => {
   return (req, res, next) => {
-    const { role } = req.user;
+    const { role } = res.user;
 
     if (!allowedRoles.includes(role)) {
       return res.status(403).json({
