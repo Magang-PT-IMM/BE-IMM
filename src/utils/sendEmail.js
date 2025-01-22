@@ -9,7 +9,8 @@ const sendEmailService = {
       if (emailType === "generatedPassword") {
         mailOptions = emailTemplates.generatedPassword(
           emailParams.to,
-          emailParams.password
+          emailParams.password,
+          emailParams.name
         );
       } else if (emailType === "generalMessage") {
         mailOptions = emailTemplates.generalMessage(

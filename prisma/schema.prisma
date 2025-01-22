@@ -31,14 +31,14 @@ model User {
   id      String   @id @default(uuid())
   authId  String    @unique
   name    String   @db.VarChar(255)
-  // departmentId Int
+  departmentId Int
   role    actorRole 
   deletedAt DateTime?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   auth Auth @relation(fields: [authId], references: [id])
-  // departement Department @relation(fields: [departmentId], references: [id])
+  departement Department @relation(fields: [departmentId], references: [id])
   progressTicket ProgressTicket[]
   ticketUser TicketUser[]
   permitUser PermitUser[]
@@ -89,7 +89,7 @@ model Department {
   updatedAt DateTime @updatedAt
 
   tickets Ticket[]
-  // users User[]
+  users User[]
   permits Permit[]
 
   @@map("departments")
@@ -192,17 +192,17 @@ enum actorRole {
 }
 
 enum ticketStatus {
-  Preparing
-  Submitting
-  Verification
-  Feedback
-  Approval
-  Complete
-  Closed
+  PREPARING
+  SUBMITING
+  VERIFICATION
+  FEEDBACK
+  APPROVAL
+  COMPLETE
+  CLOSED
 }
 
 enum permitStatus {
-  Valid
-  Expired
-  Invalid
+  VALID
+  EXPIRED
+  INVALID
 }

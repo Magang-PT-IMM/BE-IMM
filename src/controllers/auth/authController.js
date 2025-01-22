@@ -25,25 +25,30 @@ module.exports = {
 
       const hashedPassword = await hashPassword(password);
 
-      const authUser = await prisma.auth.create({
-        data: {
-          email,
-          password: hashedPassword,
-          reNewPassword: false,
-        },
-      });
+      await prisma.$transaction(async (prisma) => {
+        const authUser = await prisma.auth.create({
+          data: {
+            email,
+            password: hashedPassword,
+            reNewPassword: false,
+          },
+        });
 
-      await prisma.user.create({
-        data: {
-          authId: authUser.id,
-          name,
-          role,
-        },
+        const user = await prisma.user.create({
+          data: {
+            authId: authUser.id,
+            name,
+            role,
+          },
+        });
+
+        return { authUser, user };
       });
 
       await sendEmailService.sendEmail("generatedPassword", {
         to: email,
         password,
+        name,
       });
 
       return res.status(201).json({
@@ -79,7 +84,7 @@ module.exports = {
       });
 
       const token = generateToken({
-        id: findUser.id,
+        id: user.id,
         email: findUser.email,
         role: user.role,
       });
@@ -133,12 +138,14 @@ module.exports = {
 
       const hashedPassword = await hashPassword(newPassword);
 
-      await prisma.auth.update({
-        where: { id },
-        data: {
-          password: hashedPassword,
-          reNewPassword: true,
-        },
+      await prisma.$transaction(async (prisma) => {
+        await prisma.auth.update({
+          where: { id },
+          data: {
+            password: hashedPassword,
+            reNewPassword: true,
+          },
+        });
       });
 
       return res.status(200).json({

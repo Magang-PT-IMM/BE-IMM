@@ -13,25 +13,25 @@ router.get(
 router.get(
   "/get-permit-category-by-id/:id",
   authMiddleware,
-  roleMiddleware("admin"),
+  roleMiddleware("ADMIN"),
   permitCategory.getPermitCategoryById
 );
 router.post(
   "/create-permit-category/",
   authMiddleware,
-  roleMiddleware("admin"),
+  roleMiddleware("ADMIN"),
   permitCategory.createPermitCategory
 );
 router.put(
   "/update-permit-category/:id",
   authMiddleware,
-  roleMiddleware("admin"),
+  roleMiddleware("ADMIN"),
   permitCategory.updatePermitCategory
 );
 router.delete(
   "/delete-permit-category/:id",
   authMiddleware,
-  roleMiddleware("admin"),
+  roleMiddleware("ADMIN"),
   permitCategory.deletePermitCategory
 );
 

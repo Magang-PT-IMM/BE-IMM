@@ -13,25 +13,25 @@ router.get(
 router.get(
   "/get-institution-by-id/:id",
   authMiddleware,
-  roleMiddleware("admin"),
+  roleMiddleware("ADMIN"),
   institution.getInstitutionById
 );
 router.post(
   "/create-institution/",
   authMiddleware,
-  roleMiddleware("admin"),
+  roleMiddleware("ADMIN"),
   institution.createInstitution
 );
 router.put(
   "/update-institution/:id",
   authMiddleware,
-  roleMiddleware("admin"),
+  roleMiddleware("ADMIN"),
   institution.updateInstitution
 );
 router.delete(
   "/delete-institution/:id",
   authMiddleware,
-  roleMiddleware("admin"),
+  roleMiddleware("ADMIN"),
   institution.deleteInstitution
 );
 

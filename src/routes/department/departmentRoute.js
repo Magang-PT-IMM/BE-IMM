@@ -9,25 +9,25 @@ router.get("/get-all-department/", authMiddleware, department.getAllDepartment);
 router.get(
   "/get-department-by-id/:id",
   authMiddleware,
-  roleMiddleware("admin"),
+  roleMiddleware("ADMIN"),
   department.getDepartmentById
 );
 router.post(
   "/create-department/",
   authMiddleware,
-  roleMiddleware("admin"),
+  roleMiddleware("ADMIN"),
   department.createDepartment
 );
 router.put(
   "/update-department/:id",
   authMiddleware,
-  roleMiddleware("admin"),
+  roleMiddleware("ADMIN"),
   department.updateDepartment
 );
 router.delete(
   "/delete-department/:id",
   authMiddleware,
-  roleMiddleware("admin"),
+  roleMiddleware("ADMIN"),
   department.deleteDepartment
 );
 
