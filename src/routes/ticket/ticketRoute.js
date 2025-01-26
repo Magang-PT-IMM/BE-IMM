@@ -5,11 +5,15 @@ const {
   roleMiddleware,
 } = require("../../middleware/authMiddleware");
 
-router.get("/get-all-ticket/", authMiddleware, ticket.getAllTicket);
-router.get("get-all-ticket-by-user", authMiddleware, ticket.getAllTicketByUser);
+router.get("/get-all-ticket", authMiddleware, ticket.getAllTicket);
+router.get(
+  "/get-all-ticket-by-user",
+  authMiddleware,
+  ticket.getAllTicketByUser
+);
 router.get("/get-ticket-by-id/:id", authMiddleware, ticket.getTicketById);
 router.post(
-  "/create-ticket/",
+  "/create-ticket",
   authMiddleware,
   roleMiddleware("ADMIN", "USER"),
   ticket.createTicket
@@ -28,10 +32,34 @@ router.delete(
 );
 
 router.post(
+  "/undelete-ticket/:id",
+  authMiddleware,
+  roleMiddleware("ADMIN", "USER"),
+  ticket.undeleteTicket
+);
+
+router.post(
   "/create-permit-from-ticket/:id",
   authMiddleware,
   roleMiddleware("ADMIN"),
   ticket.createPermitFromTicket
+);
+
+router.get(
+  "/get-all-ticket-deleted-by-user",
+  authMiddleware,
+  ticket.getTicketDeletedByUser
+);
+router.get(
+  "/get-all-ticket-deleted",
+  authMiddleware,
+  roleMiddleware("ADMIN"),
+  ticket.getAllTicketDeleted
+);
+router.get(
+  "/get-ticket-deleted-by-id/:id",
+  authMiddleware,
+  ticket.getTicketDeletedById
 );
 
 module.exports = router;

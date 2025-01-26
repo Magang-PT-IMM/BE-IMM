@@ -6,7 +6,7 @@ const {
 } = require("../../middleware/authMiddleware");
 
 router.get(
-  "/get-all-institution/",
+  "/get-all-institution",
   authMiddleware,
   institution.getAllInstitution
 );
@@ -17,7 +17,7 @@ router.get(
   institution.getInstitutionById
 );
 router.post(
-  "/create-institution/",
+  "/create-institution",
   authMiddleware,
   roleMiddleware("ADMIN"),
   institution.createInstitution

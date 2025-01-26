@@ -6,7 +6,7 @@ const {
 } = require("../../middleware/authMiddleware");
 
 router.get(
-  "/get-all-permit-category/",
+  "/get-all-permit-category",
   authMiddleware,
   permitCategory.getAllPermitCategory
 );
@@ -17,7 +17,7 @@ router.get(
   permitCategory.getPermitCategoryById
 );
 router.post(
-  "/create-permit-category/",
+  "/create-permit-category",
   authMiddleware,
   roleMiddleware("ADMIN"),
   permitCategory.createPermitCategory

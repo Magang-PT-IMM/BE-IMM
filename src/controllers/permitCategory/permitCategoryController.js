@@ -12,7 +12,14 @@ module.exports = {
         throw createError(404, "Institution not found");
       }
 
-      return res.status(200).json({ success: true, data: permitCategory });
+      const data = permitCategory.map((permitCategory) => {
+        return {
+          id: permitCategory.id,
+          name: permitCategory.name,
+        };
+      });
+
+      return res.status(200).json({ success: true, data: data });
     } catch (error) {
       throw createError(500, error.message);
     }
@@ -20,13 +27,18 @@ module.exports = {
   getPermitCategoryById: async (req, res, next) => {
     try {
       const { id } = req.params;
+      const idInt = parseInt(id);
       const permitCategory = await prisma.permitCategory.findUnique({
-        where: { id, deletedAt: null },
+        where: { id: idInt, deletedAt: null },
       });
       if (!permitCategory) {
         throw createError(404, "Permit Category not found");
       }
-      return res.status(200).json({ success: true, data: permitCategory });
+      const data = {
+        id: permitCategory.id,
+        name: permitCategory.name,
+      };
+      return res.status(200).json({ success: true, data: data });
     } catch (error) {
       next(error);
     }
@@ -61,18 +73,19 @@ module.exports = {
   updatePermitCategory: async (req, res, next) => {
     try {
       const { id } = req.params;
+      const idInt = parseInt(id);
       const { name } = req.body;
       if (!name) {
         throw createError(400, "Permit Category name is required");
       }
       const findPermitCategory = await prisma.permitCategory.findUnique({
-        where: { id, deletedAt: null },
+        where: { id: idInt, deletedAt: null },
       });
       if (!findPermitCategory) {
         throw createError(404, "Permit Category not found");
       }
       await prisma.permitCategory.update({
-        where: { id },
+        where: { id: idInt },
         data: {
           name,
         },
@@ -89,14 +102,15 @@ module.exports = {
   deletePermitCategory: async (req, res, next) => {
     try {
       const { id } = req.params;
+      const idInt = parseInt(id);
       const findPermitCategory = await prisma.permitCategory.findUnique({
-        where: { id, deletedAt: null },
+        where: { id: idInt, deletedAt: null },
       });
       if (!findPermitCategory) {
         throw createError(404, "Permit Category not found");
       }
       await prisma.permitCategory.update({
-        where: { id },
+        where: { id: idInt },
         data: {
           deletedAt: new Date(),
         },

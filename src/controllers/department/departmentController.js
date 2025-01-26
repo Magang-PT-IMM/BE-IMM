@@ -10,9 +10,15 @@ module.exports = {
       if (!department) {
         throw createError(404, "Department not found");
       }
+      const data = department.map((department) => {
+        return {
+          id: department.id,
+          name: department.name,
+        };
+      });
       return res.status(200).json({
         success: true,
-        data: department,
+        data: data,
       });
     } catch (error) {
       next(error);
@@ -21,15 +27,20 @@ module.exports = {
   getDepartmentById: async (req, res, next) => {
     try {
       const { id } = req.params;
-      const department = await prisma.department.findUnique({
-        where: { id, deletedAt: null },
+      const departmentId = parseInt(id);
+      const department = await prisma.department.findFirst({
+        where: { id: departmentId, deletedAt: null },
       });
       if (!department) {
         throw createError(404, "Department not found");
       }
+      const data = {
+        id: department.id,
+        name: department.name,
+      };
       return res.status(200).json({
         success: true,
-        data: department,
+        data: data,
       });
     } catch (error) {
       next(error);
@@ -63,18 +74,19 @@ module.exports = {
   updateDepartment: async (req, res, next) => {
     try {
       const { id } = req.params;
+      const departmentId = parseInt(id);
       const { name } = req.body;
       if (!name) {
         throw createError(400, "Department name is required");
       }
       const findDepartment = await prisma.department.findUnique({
-        where: { id, deletedAt: null },
+        where: { id: departmentId, deletedAt: null },
       });
       if (!findDepartment) {
         throw createError(404, "Department not found");
       }
       await prisma.department.update({
-        where: { id },
+        where: { id: departmentId },
         data: {
           name,
         },
@@ -90,14 +102,15 @@ module.exports = {
   deleteDepartment: async (req, res, next) => {
     try {
       const { id } = req.params;
+      const departmentId = parseInt(id);
       const findDepartment = await prisma.department.findUnique({
-        where: { id, deletedAt: null },
+        where: { id: departmentId, deletedAt: null },
       });
       if (!findDepartment) {
         throw createError(404, "Department not found");
       }
       await prisma.department.update({
-        where: { id },
+        where: { id: departmentId },
         data: {
           deletedAt: new Date(),
         },

@@ -10,9 +10,15 @@ module.exports = {
       if (!institution) {
         throw createError(404, "Institution not found");
       }
+      const data = institution.map((institution) => {
+        return {
+          id: institution.id,
+          name: institution.name,
+        };
+      });
       return res.status(200).json({
         success: true,
-        data: institution,
+        data: data,
       });
     } catch (error) {
       next(error);
@@ -22,15 +28,20 @@ module.exports = {
   getInstitutionById: async (req, res, next) => {
     try {
       const { id } = req.params;
+      const idInt = parseInt(id);
       const institution = await prisma.institution.findUnique({
-        where: { id, deletedAt: null },
+        where: { id: idInt, deletedAt: null },
       });
       if (!institution) {
         throw createError(404, "Institution not found");
       }
+      const data = {
+        id: institution.id,
+        name: institution.name,
+      };
       return res.status(200).json({
         success: true,
-        data: institution,
+        data: data,
       });
     } catch (error) {
       next(error);
@@ -43,7 +54,7 @@ module.exports = {
       if (!name) {
         throw createError(400, "Institution name is required");
       }
-      const findInstitution = await prisma.institution.findUnique({
+      const findInstitution = await prisma.institution.findFirst({
         where: { name, deletedAt: null },
       });
       if (findInstitution) {
@@ -58,24 +69,27 @@ module.exports = {
         success: true,
         massage: "Institution created successfully",
       });
-    } catch (error) {}
+    } catch (error) {
+      next(error);
+    }
   },
 
   updateInstitution: async (req, res, next) => {
     try {
       const { id } = req.params;
+      const idInt = parseInt(id);
       const { name } = req.body;
       if (!name) {
         throw createError(400, "Institution name is required");
       }
       const findInstitution = await prisma.institution.findUnique({
-        where: { id, deletedAt: null },
+        where: { id: idInt, deletedAt: null },
       });
       if (!findInstitution) {
         throw createError(404, "Institution not found");
       }
       await prisma.institution.update({
-        where: { id },
+        where: { id: idInt },
         data: {
           name,
         },
@@ -92,15 +106,16 @@ module.exports = {
   deleteInstitution: async (req, res, next) => {
     try {
       const { id } = req.params;
+      const idInt = parseInt(id);
 
       const findInstitution = await prisma.institution.findUnique({
-        where: { id, deletedAt: null },
+        where: { id: idInt, deletedAt: null },
       });
       if (!findInstitution) {
         throw createError(404, "Institution not found");
       }
       await prisma.institution.update({
-        where: { id },
+        where: { id: idInt },
         data: {
           deletedAt: new Date(),
         },

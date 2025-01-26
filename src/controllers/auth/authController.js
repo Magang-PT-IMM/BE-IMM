@@ -8,7 +8,7 @@ const sendEmailService = require("../../utils/sendEmail");
 module.exports = {
   register: async (req, res, next) => {
     try {
-      const { email, name, role } = req.body;
+      const { email, name, role, departmentId } = req.body;
 
       const findUser = await prisma.auth.findUnique({
         where: { email, deletedAt: null },
@@ -39,6 +39,7 @@ module.exports = {
             authId: authUser.id,
             name,
             role,
+            departmentId,
           },
         });
 
@@ -122,7 +123,7 @@ module.exports = {
         );
       }
 
-      const findUser = await prisma.auth.findUnique({
+      const findUser = await prisma.user.findUnique({
         where: { id, deletedAt: null },
       });
 
@@ -130,7 +131,15 @@ module.exports = {
         throw createError(404, "User not found");
       }
 
-      const isMatch = await comparePassword(currentPassword, findUser.password);
+      const authUser = await prisma.auth.findUnique({
+        where: { id: findUser.authId, deletedAt: null },
+      });
+
+      if (!authUser) {
+        throw createError(404, "User not found");
+      }
+
+      const isMatch = await comparePassword(currentPassword, authUser.password);
 
       if (!isMatch) {
         throw createError(401, "Your current password is incorrect");
@@ -140,7 +149,7 @@ module.exports = {
 
       await prisma.$transaction(async (prisma) => {
         await prisma.auth.update({
-          where: { id },
+          where: { id: findUser.authId },
           data: {
             password: hashedPassword,
             reNewPassword: true,
@@ -169,7 +178,7 @@ module.exports = {
         );
       }
 
-      const findUser = await prisma.auth.findUnique({
+      const findUser = await prisma.user.findUnique({
         where: { id, deletedAt: null },
       });
 
@@ -177,7 +186,15 @@ module.exports = {
         throw createError(404, "User not found");
       }
 
-      const isMatch = await comparePassword(newPassword, findUser.password);
+      const authUser = await prisma.auth.findUnique({
+        where: { id: findUser.authId, deletedAt: null },
+      });
+
+      if (!authUser) {
+        throw createError(404, "User not found");
+      }
+
+      const isMatch = await comparePassword(newPassword, authUser.password);
 
       if (isMatch) {
         throw createError(
@@ -189,7 +206,7 @@ module.exports = {
       const hashedPassword = await hashPassword(newPassword);
 
       await prisma.auth.update({
-        where: { id },
+        where: { id: findUser.authId },
         data: {
           password: hashedPassword,
         },
@@ -201,6 +218,57 @@ module.exports = {
       });
     } catch (error) {
       console.log(error);
+      next(error);
+    }
+  },
+
+  resetPassword: async (req, res, next) => {
+    try {
+      const { id } = req.params;
+
+      const findUser = await prisma.user.findUnique({
+        where: { id, deletedAt: null },
+      });
+
+      if (!findUser) {
+        throw createError(404, "User not found");
+      }
+
+      const authUser = await prisma.auth.findUnique({
+        where: { id: findUser.authId, deletedAt: null },
+      });
+
+      if (!authUser) {
+        throw createError(404, "User not found");
+      }
+
+      const password = randomPassword({
+        length: 12,
+        characters: "alphanumeric",
+      });
+
+      const hashedPassword = await hashPassword(password);
+
+      await prisma.auth.update({
+        where: { id: findUser.authId },
+        data: {
+          password: hashedPassword,
+          reNewPassword: false,
+        },
+      });
+
+      await sendEmailService.sendEmail("resetPassword", {
+        to: authUser.email,
+        password,
+        name: findUser.name,
+      });
+
+      return res.status(200).json({
+        success: true,
+        message:
+          "User password has been successfully reset. Please inform the user to check their email.",
+      });
+    } catch (error) {
       next(error);
     }
   },

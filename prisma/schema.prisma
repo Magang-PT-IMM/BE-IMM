@@ -38,7 +38,7 @@ model User {
   updatedAt DateTime @updatedAt
 
   auth Auth @relation(fields: [authId], references: [id])
-  departement Department @relation(fields: [departmentId], references: [id])
+  department Department @relation(fields: [departmentId], references: [id])
   progressTicket ProgressTicket[]
   ticketUser TicketUser[]
   permitUser PermitUser[]
@@ -145,6 +145,7 @@ model Permit {
   permitCategoryId Int
   ownerDepartmentId Int
   institutionId Int
+  permitId String
   permitName String
   permitNumber String
   issuedDate DateTime
@@ -173,6 +174,7 @@ model PermitUser {
   permitId String
   userId String
   permitRole String
+  deletedAt DateTime?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

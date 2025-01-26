@@ -6,7 +6,7 @@ const {
 } = require("../../middleware/authMiddleware");
 
 router.post(
-  "/create-progress-ticket/:id",
+  "/create-progress-ticket/:ticketId",
   authMiddleware,
   roleMiddleware("ADMIN", "USER", "EXTERNAL_RELATION"),
   progressTicket.createProgressTicket

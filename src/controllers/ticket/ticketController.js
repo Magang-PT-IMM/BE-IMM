@@ -1,5 +1,6 @@
 const prisma = require("../../application/database");
 const { createError } = require("../../models/errorResponse");
+const sendEmailService = require("../../utils/sendEmail");
 
 const generateTicketId = async () => {
   const ticketCount = await prisma.ticket.count();
@@ -7,16 +8,26 @@ const generateTicketId = async () => {
   const numberPart = ticketCount + 1;
   const digitLength = Math.max(4, String(numberPart).length);
 
-  const ticketId = `IMM-${String(numberPart).padStart(digitLength, "0")}`;
+  const ticketId = `T-IMM-${String(numberPart).padStart(digitLength, "0")}`;
+
+  return ticketId;
+};
+const generatePermitId = async () => {
+  const ticketCount = await prisma.permit.count();
+
+  const numberPart = ticketCount + 1;
+  const digitLength = Math.max(4, String(numberPart).length);
+
+  const ticketId = `P-IMM-${String(numberPart).padStart(digitLength, "0")}`;
 
   return ticketId;
 };
 
 module.exports = {
-  createTicket: async (req, res) => {
+  createTicket: async (req, res, next) => {
     try {
       const {
-        permitCategory,
+        permitCategoryId,
         ownerDepartmentId,
         institutionId,
         permitName,
@@ -25,12 +36,13 @@ module.exports = {
       } = req.body;
 
       if (
-        !permitCategory ||
+        !permitCategoryId ||
         !ownerDepartmentId ||
         !institutionId ||
         !permitName ||
         !description ||
-        !users
+        !users ||
+        users.length === 0
       ) {
         throw createError(400, "All fields are required");
       }
@@ -47,13 +59,87 @@ module.exports = {
       if (findTicket) {
         throw createError(409, "Ticket already exists");
       }
+
+      const permitCategory = await prisma.permitCategory.findUnique({
+        where: {
+          id: permitCategoryId,
+        },
+      });
+
+      if (!permitCategory) {
+        throw createError(404, "Permit Category not found");
+      }
+
+      const institution = await prisma.institution.findUnique({
+        where: {
+          id: institutionId,
+        },
+      });
+
+      if (!institution) {
+        throw createError(404, "Institution not found");
+      }
+
+      const department = await prisma.department.findUnique({
+        where: {
+          id: ownerDepartmentId,
+        },
+        select: {
+          name: true,
+        },
+      });
+
+      if (!department) {
+        throw createError(404, "Department not found");
+      }
+
+      const departmentUsers = await prisma.user.findMany({
+        where: {
+          departmentId: ownerDepartmentId,
+          deletedAt: null,
+        },
+        select: {
+          auth: {
+            select: {
+              email: true,
+            },
+          },
+        },
+      });
+
+      if (departmentUsers.length === 0) {
+        throw createError(404, "No users found in the department");
+      }
+
+      const adminUsers = await prisma.user.findMany({
+        where: {
+          role: "ADMIN",
+          deletedAt: null,
+        },
+        select: {
+          auth: { select: { email: true } },
+        },
+      });
+
+      const ccEmails = [
+        ...new Set([
+          ...departmentUsers.map((user) => user.auth.email),
+          ...adminUsers.map((user) => user.auth.email),
+        ]),
+      ];
+
+      let externalRelationPICEmails = [];
+      let externalRelationEscalationEmails = [];
+      let externalRelationPICNames = [];
+      let permitDetails;
+
       await prisma.$transaction(async (prisma) => {
         const ticket = await prisma.ticket.create({
           data: {
-            permitCategory,
+            ticketId,
+            permitCategoryId,
             ownerDepartmentId,
             institutionId,
-            ticketId,
             permitName,
             description,
           },
@@ -66,7 +152,79 @@ module.exports = {
             ticketRole: user.role,
           })),
         });
+
+        const ticketUsers = await prisma.ticketUser.findMany({
+          where: {
+            ticketId: ticket.id,
+            deletedAt: null,
+          },
+          include: {
+            user: {
+              include: {
+                auth: {
+                  select: {
+                    email: true,
+                  },
+                },
+              },
+            },
+          },
+        });
+
+        const externalRelationPICUsers = ticketUsers.filter(
+          (ticketUser) =>
+            ticketUser.ticketRole === "External Relation PIC Permit & License"
+        );
+
+        if (externalRelationPICUsers.length === 0) {
+          throw new Error(
+            "No External Relation PIC Permit & License user found for this ticket"
+          );
+        }
+
+        externalRelationPICEmails = externalRelationPICUsers.map(
+          (ticketUser) => ticketUser.user.auth.email
+        );
+        externalRelationPICNames = externalRelationPICUsers.map(
+          (ticketUser) => ticketUser.user.name
+        );
+
+        const externalRelationEscalationUsers = ticketUsers.filter(
+          (ticketUser) =>
+            ticketUser.ticketRole ===
+            "External Realtion Escalation Permit & License"
+        );
+
+        externalRelationEscalationEmails = externalRelationEscalationUsers.map(
+          (ticketUser) => ticketUser.user.auth.email
+        );
+
+        permitDetails = {
+          ticketId,
+          department: department.name,
+          permitName,
+          permitCategory: permitCategory.name,
+          institution: institution.name,
+          description,
+        };
       });
+
+      for (let i = 0; i < externalRelationEmails.length; i++) {
+        const email = externalRelationPICEmails[i];
+        const name = externalRelationPICNames[i];
+
+        await sendEmailService.sendEmail("createTicket", {
+          to: [email],
+          ticketId: permitDetails.ticketId,
+          department: permitDetails.department,
+          permitName: permitDetails.permitName,
+          permitCategory: permitDetails.permitCategory,
+          institution: permitDetails.institution,
+          externalRelation: name,
+          description: permitDetails.description,
+          cc: [...ccEmails, ...externalRelationEscalationEmails],
+        });
+      }
 
       return res
         .status(201)
@@ -79,7 +237,7 @@ module.exports = {
   updateTicket: async (req, res, next) => {
     try {
       const {
-        permitCategory,
+        permitCategoryId,
         ownerDepartmentId,
         institutionId,
         permitName,
@@ -89,7 +247,7 @@ module.exports = {
       const { id } = req.params;
 
       if (
-        !permitCategory ||
+        !permitCategoryId ||
         !ownerDepartmentId ||
         !institutionId ||
         !permitName ||
@@ -109,11 +267,12 @@ module.exports = {
       if (!existingTicket) {
         throw createError(404, "Ticket not found");
       }
+
       await prisma.$transaction(async (prisma) => {
         await prisma.ticket.update({
-          where: { id: id },
+          where: { id: existingTicket.id },
           data: {
-            permitCategory,
+            permitCategoryId,
             ownerDepartmentId,
             institutionId,
             permitName,
@@ -122,14 +281,14 @@ module.exports = {
         });
         await prisma.ticketUser.deleteMany({
           where: {
-            ticketId: id,
+            ticketId: existingTicket.id,
           },
         });
 
         await prisma.ticketUser.createMany({
           data: users.map((user) => ({
             userId: user.id,
-            ticketId: ticketId,
+            ticketId: existingTicket.id,
             ticketRole: user.role,
           })),
         });
@@ -187,14 +346,82 @@ module.exports = {
       next(error);
     }
   },
+
+  undeleteTicket: async (req, res, next) => {
+    try {
+      const { id } = req.params;
+
+      const existingTicket = await prisma.ticket.findFirst({
+        where: {
+          id: id,
+        },
+      });
+      if (!existingTicket) {
+        throw createError(404, "Ticket not found");
+      }
+      await prisma.$transaction(async (prisma) => {
+        await prisma.ticket.update({
+          where: { id: id },
+          data: {
+            deletedAt: null,
+          },
+        });
+        await prisma.ticketUser.updateMany({
+          where: {
+            ticketId: id,
+          },
+          data: {
+            deletedAt: null,
+          },
+        });
+        await prisma.progressTicket.updateMany({
+          where: {
+            ticketId: id,
+          },
+          data: {
+            deletedAt: null,
+          },
+        });
+      });
+
+      return res
+        .status(200)
+        .json({ success: true, message: "Ticket undeleted successfully" });
+    } catch (error) {
+      next(error);
+    }
+  },
   getAllTicket: async (req, res, next) => {
     try {
       const tickets = await prisma.ticket.findMany({
         where: {
           deletedAt: null,
         },
+        include: {
+          permitCategory: true,
+          department: true,
+          institution: true,
+        },
       });
-      return res.status(200).json({ success: true, data: tickets });
+      const data = tickets.map((ticket) => {
+        const updatedAt = new Date(ticket.updatedAt);
+        const day = String(updatedAt.getDate()).padStart(2, "0");
+        const month = String(updatedAt.getMonth() + 1).padStart(2, "0"); // Month is 0-based
+        const year = updatedAt.getFullYear();
+        const formattedLastUpdate = `${day}/${month}/${year}`;
+        return {
+          id: ticket.id,
+          ticketId: ticket.ticketId,
+          name: ticket.permitName,
+          category: ticket.permitCategory.name,
+          department: ticket.department.name,
+          institution: ticket.institution.name,
+          status: ticket.status,
+          description: ticket.description,
+          lastUpdate: formattedLastUpdate,
+        };
+      });
+      return res.status(200).json({ success: true, data: data });
     } catch (error) {
       next(error);
     }
@@ -206,6 +433,9 @@ module.exports = {
       const ticket = await prisma.ticket.findUnique({
         where: { id },
         include: {
+          permitCategory: true,
+          department: true,
+          institution: true,
           progressTicket: {
             orderBy: { createdAt: "desc" },
             include: {
@@ -219,16 +449,39 @@ module.exports = {
           },
         },
       });
-
       if (!ticket) {
         throw createError(404, "Ticket not found");
       }
-
-      return res.status(200).json({ success: true, data: ticket });
+      const data = {
+        id: ticket.id,
+        ticketId: ticket.ticketId,
+        name: ticket.permitName,
+        category: ticket.permitCategory?.name || "Unknown Category",
+        department: ticket.department?.name || "Unknown Department",
+        institution: ticket.institution?.name || "Unknown Institution",
+        status: ticket.status || "Ticket don't have status",
+        description: ticket.description || "No Description",
+        users: ticket.ticketUser.map((ticketUser) => ({
+          name: ticketUser.user.name,
+          role: ticketUser.ticketRole,
+        })),
+        progress: ticket.progressTicket.map((progress) => ({
+          id: progress.id,
+          status: progress.status,
+          description: progress.description,
+          urlDocs: progress.urlDocs,
+          user: {
+            name: progress.user.name,
+          },
+          createdAt: progress.createdAt,
+        })),
+      };
+      return res.status(200).json({ success: true, data });
     } catch (error) {
       next(error);
     }
   },
+
   getAllTicketByUser: async (req, res, next) => {
     try {
       const { id } = res.user;
@@ -245,8 +498,39 @@ module.exports = {
           },
           deletedAt: null,
         },
+        include: {
+          permitCategory: true,
+          department: true,
+          institution: true,
+        },
       });
-      return res.status(200).json({ success: true, data: tickets });
+
+      if (!tickets.length) {
+        return res.status(404).json({
+          success: false,
+          message: "No active tickets found for this user.",
+        });
+      }
+
+      const data = tickets.map((ticket) => {
+        const updatedAt = new Date(ticket.updatedAt);
+        const day = String(updatedAt.getDate()).padStart(2, "0");
+        const month = String(updatedAt.getMonth() + 1).padStart(2, "0");
+        const year = updatedAt.getFullYear();
+        const formattedLastUpdate = `${day}/${month}/${year}`;
+        return {
+          id: ticket.id,
+          ticketId: ticket.ticketId,
+          name: ticket.permitName,
+          category: ticket.permitCategory.name,
+          department: ticket.department.name,
+          institution: ticket.institution.name,
+          status: ticket.status,
+          description: ticket.description,
+          lastUpdate: formattedLastUpdate,
+        };
+      });
+      return res.status(200).json({ success: true, data: data });
     } catch (error) {
       next(error);
     }
@@ -256,7 +540,7 @@ module.exports = {
     try {
       const { id } = req.params;
       const {
-        permitCategory,
+        permitCategoryid,
         ownerDepartmentId,
         institutionId,
         permitName,
@@ -270,23 +554,24 @@ module.exports = {
         urlDocument,
         preparationPeriod,
       } = req.body;
-      const requiredFields = {
-        permitCategory,
-        ownerDepartmentId,
-        institutionId,
-        permitName,
-        permitNumber,
-        issuedDate,
-        validityPeriod,
-        expireDate,
-        description,
-        renewalRequirement,
-        notification,
-        urlDocument,
-        preparationPeriod,
-      };
 
-      for (const [field, value] of Object.entries(requiredFields)) {
+      const requiredFields = [
+        { field: "permitCategoryid", value: permitCategoryid },
+        { field: "ownerDepartmentId", value: ownerDepartmentId },
+        { field: "institutionId", value: institutionId },
+        { field: "permitName", value: permitName },
+        { field: "permitNumber", value: permitNumber },
+        { field: "issuedDate", value: issuedDate },
+        { field: "validityPeriod", value: validityPeriod },
+        { field: "expireDate", value: expireDate },
+        { field: "description", value: description },
+        { field: "renewalRequirement", value: renewalRequirement },
+        { field: "notification", value: notification },
+        { field: "urlDocument", value: urlDocument },
+        { field: "preparationPeriod", value: preparationPeriod },
+      ];
+
+      for (const { field, value } of requiredFields) {
         if (!value) {
           throw createError(400, `${field} is required`);
         }
@@ -299,10 +584,18 @@ module.exports = {
       if (!ticket) {
         throw createError(404, "Ticket not found");
       }
+
+      if (ticket.status !== "COMPLETE") {
+        throw createError(400, "Ticket is not complete");
+      }
+
+      const permitId = await generatePermitId();
+
       await prisma.$transaction(async (prisma) => {
-        await prisma.permit.create({
+        const newPermit = await prisma.permit.create({
           data: {
-            permitCategory,
+            permitId,
+            permitCategoryId: permitCategoryid,
             ownerDepartmentId,
             institutionId,
             permitName,
@@ -319,6 +612,20 @@ module.exports = {
           },
         });
 
+        const ticketUsers = await prisma.ticketUser.findMany({
+          where: { ticketId: id },
+        });
+
+        const permitUsersData = ticketUsers.map((ticketUser) => ({
+          permitId: newPermit.id,
+          userId: ticketUser.userId,
+          permitRole: ticketUser.ticketRole,
+        }));
+
+        await prisma.permitUser.createMany({
+          data: permitUsersData,
+        });
+
         await prisma.ticket.update({
           where: { id },
           data: {
@@ -326,27 +633,227 @@ module.exports = {
             deletedAt: new Date(),
           },
         });
+
         await prisma.ticketUser.updateMany({
-          where: {
-            ticketId: id,
-          },
-          data: {
-            deletedAt: new Date(),
-          },
+          where: { ticketId: id },
+          data: { deletedAt: new Date() },
         });
+
         await prisma.progressTicket.updateMany({
-          where: {
-            ticketId: id,
-          },
-          data: {
-            deletedAt: new Date(),
-          },
+          where: { ticketId: id },
+          data: { deletedAt: new Date() },
+        });
+
+        const permitCategory = await prisma.permitCategory.findUnique({
+          where: { id: permitCategoryid },
+        });
+
+        const institution = await prisma.institution.findUnique({
+          where: { id: institutionId },
+        });
+
+        const department = await prisma.department.findUnique({
+          where: { id: ownerDepartmentId },
+        });
+
+        const permitUsers = await prisma.permitUser.findMany({
+          where: { permitId: newPermit.id },
+          include: { user: { include: { auth: true } } },
+        });
+
+        const admin = await prisma.user.findMany({
+          where: { role: "ADMIN" },
+          include: { auth: true },
+        });
+
+        const to = permitUsers
+          .filter((user) => user.permitRole !== "ADMIN")
+          .map((user) => user.user.auth.email);
+
+        const cc = admin
+          .filter((user) => user.role === "ADMIN")
+          .map((user) => user.user.auth.email);
+
+        await sendEmailService.sendEmail("createPermit", {
+          permitId: newPermit.permitId,
+          permitNumber: newPermit.permitNumber,
+          permitName: newPermit.permitName,
+          permitCategory: permitCategory?.name || "Unknown",
+          institution: institution?.name || "Unknown",
+          department: department?.name || "Unknown",
+          issueDate: newPermit.issuedDate,
+          validityPeriod: newPermit.validityPeriod,
+          expireDate: newPermit.expireDate,
+          status: newPermit.status,
+          description: newPermit.description,
+          to,
+          cc,
         });
       });
 
       return res
         .status(200)
         .json({ success: true, message: "Permit created successfully" });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  getAllTicketDeleted: async (req, res, next) => {
+    try {
+      const tickets = await prisma.ticket.findMany({
+        where: {
+          deletedAt: { not: null },
+        },
+        include: {
+          permitCategory: true,
+          department: true,
+          institution: true,
+        },
+      });
+
+      if (!tickets.length) {
+        return res.status(404).json({
+          success: false,
+          message: "No deleted tickets found.",
+        });
+      }
+
+      const data = tickets.map((ticket) => {
+        const updatedAt = new Date(ticket.updatedAt);
+        const day = String(updatedAt.getDate()).padStart(2, "0");
+        const month = String(updatedAt.getMonth() + 1).padStart(2, "0");
+        const year = updatedAt.getFullYear();
+        const formattedLastUpdate = `${day}/${month}/${year}`;
+        return {
+          id: ticket.id,
+          ticketId: ticket.ticketId,
+          name: ticket.permitName,
+          category: ticket.permitCategory.name,
+          department: ticket.department.name,
+          institution: ticket.institution.name,
+          status: ticket.status,
+          description: ticket.description,
+          lastUpdate: formattedLastUpdate,
+        };
+      });
+
+      return res.status(200).json({ success: true, data });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  getTicketDeletedByUser: async (req, res, next) => {
+    try {
+      const { id } = res.user;
+      const ticketUsers = await prisma.ticketUser.findMany({
+        where: {
+          userId: id,
+          deletedAt: { not: null },
+        },
+      });
+
+      const tickets = await prisma.ticket.findMany({
+        where: {
+          id: {
+            in: ticketUsers.map((ticketUser) => ticketUser.ticketId),
+          },
+          deletedAt: { not: null },
+        },
+        include: {
+          permitCategory: true,
+          department: true,
+          institution: true,
+        },
+      });
+
+      if (!tickets.length) {
+        return res.status(404).json({
+          success: false,
+          message: "No deleted tickets found for this user.",
+        });
+      }
+
+      const data = tickets.map((ticket) => {
+        const updatedAt = new Date(ticket.updatedAt);
+        const day = String(updatedAt.getDate()).padStart(2, "0");
+        const month = String(updatedAt.getMonth() + 1).padStart(2, "0");
+        const year = updatedAt.getFullYear();
+        const formattedLastUpdate = `${day}/${month}/${year}`;
+        return {
+          id: ticket.id,
+          ticketId: ticket.ticketId,
+          name: ticket.permitName,
+          category: ticket.permitCategory.name,
+          department: ticket.department.name,
+          institution: ticket.institution.name,
+          status: ticket.status,
+          description: ticket.description,
+          lastUpdate: formattedLastUpdate,
+        };
+      });
+
+      return res.status(200).json({ success: true, data });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  getTicketDeletedById: async (req, res, next) => {
+    try {
+      const { id } = req.params;
+
+      const ticket = await prisma.ticket.findUnique({
+        where: { id },
+        include: {
+          permitCategory: true,
+          department: true,
+          institution: true,
+          progressTicket: {
+            orderBy: { createdAt: "desc" },
+            include: {
+              user: true,
+            },
+          },
+          ticketUser: {
+            include: {
+              user: true,
+            },
+          },
+        },
+      });
+
+      if (!ticket || ticket.deletedAt === null) {
+        throw createError(404, "Ticket not found or not deleted");
+      }
+
+      const data = {
+        id: ticket.id,
+        ticketId: ticket.ticketId,
+        name: ticket.permitName,
+        category: ticket.permitCategory?.name || "Unknown Category",
+        department: ticket.department?.name || "Unknown Department",
+        institution: ticket.institution?.name || "Unknown Institution",
+        status: ticket.status || "Ticket doesn't have status",
+        description: ticket.description || "No Description",
+        users: ticket.ticketUser.map((ticketUser) => ({
+          name: ticketUser.user.name,
+          role: ticketUser.ticketRole,
+        })),
+        progress: ticket.progressTicket.map((progress) => ({
+          id: progress.id,
+          status: progress.status,
+          description: progress.description,
+          urlDocs: progress.urlDocs,
+          user: {
+            name: progress.user.name,
+          },
+          createdAt: progress.createdAt,
+        })),
+      };
+
+      return res.status(200).json({ success: true, data });
     } catch (error) {
       next(error);
     }

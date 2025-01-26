@@ -5,7 +5,7 @@ const {
 } = require("../../middleware/authMiddleware");
 const department = require("../../controllers/department/departmentController");
 
-router.get("/get-all-department/", authMiddleware, department.getAllDepartment);
+router.get("/get-all-department", authMiddleware, department.getAllDepartment);
 router.get(
   "/get-department-by-id/:id",
   authMiddleware,
@@ -13,7 +13,7 @@ router.get(
   department.getDepartmentById
 );
 router.post(
-  "/create-department/",
+  "/create-department",
   authMiddleware,
   roleMiddleware("ADMIN"),
   department.createDepartment
