@@ -1,6 +1,7 @@
 const prisma = require("../../application/database");
 const { createError } = require("../../models/errorResponse");
 const sendEmailService = require("../../utils/sendEmail");
+const { formatDate } = require("../../utils/dateFormat");
 
 const generateTicketId = async () => {
   const ticketCount = await prisma.ticket.count();
@@ -44,7 +45,7 @@ module.exports = {
         !users ||
         users.length === 0
       ) {
-        throw createError(400, "All fields are required");
+        throw new createError(400, "All fields are required");
       }
 
       const ticketId = await generateTicketId();
@@ -57,7 +58,7 @@ module.exports = {
       });
 
       if (findTicket) {
-        throw createError(409, "Ticket already exists");
+        throw new createError(409, "Ticket already exists");
       }
 
       const permitCategory = await prisma.permitCategory.findUnique({
@@ -67,7 +68,7 @@ module.exports = {
       });
 
       if (!permitCategory) {
-        throw createError(404, "Permit Category not found");
+        throw new createError(404, "Permit Category not found");
       }
 
       const institution = await prisma.institution.findUnique({
@@ -77,7 +78,7 @@ module.exports = {
       });
 
       if (!institution) {
-        throw createError(404, "Institution not found");
+        throw new createError(404, "Institution not found");
       }
 
       const department = await prisma.department.findUnique({
@@ -90,7 +91,7 @@ module.exports = {
       });
 
       if (!department) {
-        throw createError(404, "Department not found");
+        throw new createError(404, "Department not found");
       }
 
       const departmentUsers = await prisma.user.findMany({
@@ -108,7 +109,7 @@ module.exports = {
       });
 
       if (departmentUsers.length === 0) {
-        throw createError(404, "No users found in the department");
+        throw new createError(404, "No users found in the department");
       }
 
       const adminUsers = await prisma.user.findMany({
@@ -177,7 +178,8 @@ module.exports = {
         );
 
         if (externalRelationPICUsers.length === 0) {
-          throw new Error(
+          throw new createError(
+            404,
             "No External Relation PIC Permit & License user found for this ticket"
           );
         }
@@ -230,6 +232,7 @@ module.exports = {
         .status(201)
         .json({ success: true, message: "Ticket created successfully" });
     } catch (error) {
+      console.log(error);
       next(error);
     }
   },
@@ -254,7 +257,7 @@ module.exports = {
         !description ||
         !users
       ) {
-        throw createError(400, "All fields are required");
+        throw new createError(400, "All fields are required");
       }
 
       const existingTicket = await prisma.ticket.findFirst({
@@ -265,7 +268,7 @@ module.exports = {
       });
 
       if (!existingTicket) {
-        throw createError(404, "Ticket not found");
+        throw new createError(404, "Ticket not found");
       }
 
       await prisma.$transaction(async (prisma) => {
@@ -292,12 +295,42 @@ module.exports = {
             ticketRole: user.role,
           })),
         });
+
+        const ticketUsers = await prisma.ticketUser.findMany({
+          where: {
+            ticketId: existingTicket.id,
+            deletedAt: null,
+          },
+          include: {
+            user: {
+              include: {
+                auth: {
+                  select: {
+                    email: true,
+                  },
+                },
+              },
+            },
+          },
+        });
+
+        await sendEmailService.sendEmail("updateTicket", {
+          to,
+          ticketId,
+          department,
+          permitName,
+          permitCategory,
+          institution,
+          description,
+          cc,
+        });
       });
 
       return res
         .status(200)
         .json({ success: true, message: "Ticket updated successfully" });
     } catch (error) {
+      console.log(error);
       next(error);
     }
   },
@@ -312,7 +345,7 @@ module.exports = {
         },
       });
       if (!existingTicket) {
-        throw createError(404, "Ticket not found");
+        throw new createError(404, "Ticket not found");
       }
       await prisma.$transaction(async (prisma) => {
         await prisma.ticket.update({
@@ -343,6 +376,7 @@ module.exports = {
         .status(200)
         .json({ success: true, message: "Ticket deleted successfully" });
     } catch (error) {
+      console.log(error);
       next(error);
     }
   },
@@ -357,7 +391,7 @@ module.exports = {
         },
       });
       if (!existingTicket) {
-        throw createError(404, "Ticket not found");
+        throw new createError(404, "Ticket not found");
       }
       await prisma.$transaction(async (prisma) => {
         await prisma.ticket.update({
@@ -388,6 +422,7 @@ module.exports = {
         .status(200)
         .json({ success: true, message: "Ticket undeleted successfully" });
     } catch (error) {
+      console.log(error);
       next(error);
     }
   },
@@ -404,11 +439,6 @@ module.exports = {
         },
       });
       const data = tickets.map((ticket) => {
-        const updatedAt = new Date(ticket.updatedAt);
-        const day = String(updatedAt.getDate()).padStart(2, "0");
-        const month = String(updatedAt.getMonth() + 1).padStart(2, "0"); // Month is 0-based
-        const year = updatedAt.getFullYear();
-        const formattedLastUpdate = `${day}/${month}/${year}`;
         return {
           id: ticket.id,
           ticketId: ticket.ticketId,
@@ -418,11 +448,12 @@ module.exports = {
           institution: ticket.institution.name,
           status: ticket.status,
           description: ticket.description,
-          lastUpdate: formattedLastUpdate,
+          lastUpdate: formatDate(ticket.updatedAt),
         };
       });
       return res.status(200).json({ success: true, data: data });
     } catch (error) {
+      console.log(error);
       next(error);
     }
   },
@@ -450,7 +481,7 @@ module.exports = {
         },
       });
       if (!ticket) {
-        throw createError(404, "Ticket not found");
+        throw new createError(404, "Ticket not found");
       }
       const data = {
         id: ticket.id,
@@ -473,11 +504,12 @@ module.exports = {
           user: {
             name: progress.user.name,
           },
-          createdAt: progress.createdAt,
+          createdAt: formatDate(progress.createdAt),
         })),
       };
       return res.status(200).json({ success: true, data });
     } catch (error) {
+      console.log(error);
       next(error);
     }
   },
@@ -513,11 +545,6 @@ module.exports = {
       }
 
       const data = tickets.map((ticket) => {
-        const updatedAt = new Date(ticket.updatedAt);
-        const day = String(updatedAt.getDate()).padStart(2, "0");
-        const month = String(updatedAt.getMonth() + 1).padStart(2, "0");
-        const year = updatedAt.getFullYear();
-        const formattedLastUpdate = `${day}/${month}/${year}`;
         return {
           id: ticket.id,
           ticketId: ticket.ticketId,
@@ -527,11 +554,12 @@ module.exports = {
           institution: ticket.institution.name,
           status: ticket.status,
           description: ticket.description,
-          lastUpdate: formattedLastUpdate,
+          lastUpdate: formatDate(ticket.updatedAt),
         };
       });
       return res.status(200).json({ success: true, data: data });
     } catch (error) {
+      console.log(error);
       next(error);
     }
   },
@@ -540,7 +568,7 @@ module.exports = {
     try {
       const { id } = req.params;
       const {
-        permitCategoryid,
+        permitCategoryId,
         ownerDepartmentId,
         institutionId,
         permitName,
@@ -556,7 +584,7 @@ module.exports = {
       } = req.body;
 
       const requiredFields = [
-        { field: "permitCategoryid", value: permitCategoryid },
+        { field: "permitCategoryId", value: permitCategoryId },
         { field: "ownerDepartmentId", value: ownerDepartmentId },
         { field: "institutionId", value: institutionId },
         { field: "permitName", value: permitName },
@@ -573,7 +601,7 @@ module.exports = {
 
       for (const { field, value } of requiredFields) {
         if (!value) {
-          throw createError(400, `${field} is required`);
+          throw new createError(400, `${field} is required`);
         }
       }
 
@@ -582,11 +610,11 @@ module.exports = {
       });
 
       if (!ticket) {
-        throw createError(404, "Ticket not found");
+        throw new createError(404, "Ticket not found");
       }
 
       if (ticket.status !== "COMPLETE") {
-        throw createError(400, "Ticket is not complete");
+        throw new createError(400, "Ticket is not complete");
       }
 
       const permitId = await generatePermitId();
@@ -595,7 +623,7 @@ module.exports = {
         const newPermit = await prisma.permit.create({
           data: {
             permitId,
-            permitCategoryId: permitCategoryid,
+            permitCategoryId: permitCategoryId,
             ownerDepartmentId,
             institutionId,
             permitName,
@@ -645,7 +673,7 @@ module.exports = {
         });
 
         const permitCategory = await prisma.permitCategory.findUnique({
-          where: { id: permitCategoryid },
+          where: { id: permitCategoryId },
         });
 
         const institution = await prisma.institution.findUnique({
@@ -695,6 +723,7 @@ module.exports = {
         .status(200)
         .json({ success: true, message: "Permit created successfully" });
     } catch (error) {
+      console.log(error);
       next(error);
     }
   },
@@ -720,11 +749,6 @@ module.exports = {
       }
 
       const data = tickets.map((ticket) => {
-        const updatedAt = new Date(ticket.updatedAt);
-        const day = String(updatedAt.getDate()).padStart(2, "0");
-        const month = String(updatedAt.getMonth() + 1).padStart(2, "0");
-        const year = updatedAt.getFullYear();
-        const formattedLastUpdate = `${day}/${month}/${year}`;
         return {
           id: ticket.id,
           ticketId: ticket.ticketId,
@@ -734,12 +758,13 @@ module.exports = {
           institution: ticket.institution.name,
           status: ticket.status,
           description: ticket.description,
-          lastUpdate: formattedLastUpdate,
+          lastUpdate: formatDate(ticket.updatedAt),
         };
       });
 
       return res.status(200).json({ success: true, data });
     } catch (error) {
+      console.log(error);
       next(error);
     }
   },
@@ -776,11 +801,6 @@ module.exports = {
       }
 
       const data = tickets.map((ticket) => {
-        const updatedAt = new Date(ticket.updatedAt);
-        const day = String(updatedAt.getDate()).padStart(2, "0");
-        const month = String(updatedAt.getMonth() + 1).padStart(2, "0");
-        const year = updatedAt.getFullYear();
-        const formattedLastUpdate = `${day}/${month}/${year}`;
         return {
           id: ticket.id,
           ticketId: ticket.ticketId,
@@ -790,12 +810,13 @@ module.exports = {
           institution: ticket.institution.name,
           status: ticket.status,
           description: ticket.description,
-          lastUpdate: formattedLastUpdate,
+          lastUpdate: formatDate(ticket.updatedAt),
         };
       });
 
       return res.status(200).json({ success: true, data });
     } catch (error) {
+      console.log(error);
       next(error);
     }
   },
@@ -825,7 +846,7 @@ module.exports = {
       });
 
       if (!ticket || ticket.deletedAt === null) {
-        throw createError(404, "Ticket not found or not deleted");
+        throw new createError(404, "Ticket not found or not deleted");
       }
 
       const data = {
@@ -849,12 +870,13 @@ module.exports = {
           user: {
             name: progress.user.name,
           },
-          createdAt: progress.createdAt,
+          createdAt: formatDate(progress.createdAt),
         })),
       };
 
       return res.status(200).json({ success: true, data });
     } catch (error) {
+      console.log(error);
       next(error);
     }
   },

@@ -21,6 +21,7 @@ module.exports = {
       };
       return res.status(200).json({ success: true, data: data });
     } catch (error) {
+      console.log(error);
       next(error);
     }
   },
@@ -41,7 +42,7 @@ module.exports = {
         });
 
         if (!findUser) {
-          throw createError(404, "User not found");
+          throw new createError(404, "User not found");
         }
 
         if (email && email !== findUser.auth.email) {
@@ -53,7 +54,7 @@ module.exports = {
           });
 
           if (authUser) {
-            throw createError(409, "Email already exists");
+            throw new createError(409, "Email already exists");
           }
 
           await prisma.auth.update({
@@ -81,6 +82,7 @@ module.exports = {
         .status(200)
         .json({ success: true, message: "User updated successfully" });
     } catch (error) {
+      console.log(error);
       next(error);
     }
   },
@@ -108,6 +110,7 @@ module.exports = {
       });
       return res.status(200).json({ success: true, data: data });
     } catch (error) {
+      console.log(error);
       next(error);
     }
   },
@@ -134,6 +137,7 @@ module.exports = {
       });
       return res.status(200).json({ success: true, data: data });
     } catch (error) {
+      console.log(error);
       next(error);
     }
   },
@@ -152,6 +156,7 @@ module.exports = {
         .status(200)
         .json({ success: true, data: "User deleted successfully" });
     } catch (error) {
+      console.log(error);
       next(error);
     }
   },
@@ -170,6 +175,7 @@ module.exports = {
         .status(200)
         .json({ success: true, data: "User undeleted successfully" });
     } catch (error) {
+      console.log(error);
       next(error);
     }
   },
@@ -193,6 +199,7 @@ module.exports = {
       };
       return res.status(200).json({ success: true, data: data });
     } catch (error) {
+      console.log(error);
       next(error);
     }
   },
@@ -213,7 +220,7 @@ module.exports = {
         });
 
         if (!findUser) {
-          throw createError(404, "User not found");
+          throw new createError(404, "User not found");
         }
 
         await prisma.user.update({
@@ -234,7 +241,7 @@ module.exports = {
           });
 
           if (emailExists) {
-            throw createError(400, "Email already in use");
+            throw new createError(400, "Email already in use");
           }
 
           await prisma.auth.update({
@@ -252,6 +259,7 @@ module.exports = {
         .status(200)
         .json({ success: true, message: "User updated successfully" });
     } catch (error) {
+      console.log(error);
       next(error);
     }
   },

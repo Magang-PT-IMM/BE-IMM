@@ -19,13 +19,13 @@ module.exports = {
 
       if (!ticketId) throw createError(400, "Ticket ID is required");
       if (!status || !description)
-        throw createError(400, "Status and description are required");
+        throw new createError(400, "Status and description are required");
 
       const findTicket = await prisma.ticket.findUnique({
         where: { id: ticketId },
       });
       if (!findTicket || findTicket.deletedAt)
-        throw createError(404, "Ticket not found");
+        throw new createError(404, "Ticket not found");
 
       const currentStatus = findTicket.status;
 
@@ -39,7 +39,7 @@ module.exports = {
       ];
 
       if (role === "USER" && !allowedStatusesForUser.includes(currentStatus))
-        throw createError(
+        throw new createError(
           403,
           "You are not allowed to update progress for this ticket in its current status."
         );
@@ -48,13 +48,13 @@ module.exports = {
         role === "EXTERNAL_RELATION" &&
         !allowedStatusesForExternalRelation.includes(currentStatus)
       )
-        throw createError(
+        throw new createError(
           403,
           "You are not allowed to update progress for this ticket in its current status."
         );
 
       if (role !== "ADMIN" && !currentStatus)
-        throw createError(
+        throw new createError(
           403,
           "You are not allowed to update progress for this ticket in its current status."
         );
@@ -222,6 +222,7 @@ module.exports = {
         message: "Progress Ticket created successfully",
       });
     } catch (error) {
+      console.log(error);
       next(error);
     }
   },

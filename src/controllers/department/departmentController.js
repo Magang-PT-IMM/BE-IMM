@@ -8,7 +8,7 @@ module.exports = {
         where: { deletedAt: null },
       });
       if (!department) {
-        throw createError(404, "Department not found");
+        throw new createError(404, "Department not found");
       }
       const data = department.map((department) => {
         return {
@@ -21,6 +21,7 @@ module.exports = {
         data: data,
       });
     } catch (error) {
+      console.log(error);
       next(error);
     }
   },
@@ -32,7 +33,7 @@ module.exports = {
         where: { id: departmentId, deletedAt: null },
       });
       if (!department) {
-        throw createError(404, "Department not found");
+        throw new createError(404, "Department not found");
       }
       const data = {
         id: department.id,
@@ -43,6 +44,7 @@ module.exports = {
         data: data,
       });
     } catch (error) {
+      console.log(error);
       next(error);
     }
   },
@@ -50,13 +52,13 @@ module.exports = {
     try {
       const { name } = req.body;
       if (!name) {
-        throw createError(400, "Department name is required");
+        throw new createError(400, "Department name is required");
       }
       const findDepartment = await prisma.department.findFirst({
         where: { name, deletedAt: null },
       });
       if (findDepartment) {
-        throw createError(409, "Department already exists");
+        throw new createError(409, "Department already exists");
       }
       await prisma.department.create({
         data: {
@@ -68,6 +70,7 @@ module.exports = {
         message: "Department created successfully",
       });
     } catch (error) {
+      console.log(error);
       next(error);
     }
   },
@@ -77,13 +80,13 @@ module.exports = {
       const departmentId = parseInt(id);
       const { name } = req.body;
       if (!name) {
-        throw createError(400, "Department name is required");
+        throw new createError(400, "Department name is required");
       }
       const findDepartment = await prisma.department.findUnique({
         where: { id: departmentId, deletedAt: null },
       });
       if (!findDepartment) {
-        throw createError(404, "Department not found");
+        throw new createError(404, "Department not found");
       }
       await prisma.department.update({
         where: { id: departmentId },
@@ -96,6 +99,7 @@ module.exports = {
         message: "Department updated successfully",
       });
     } catch (error) {
+      console.log(error);
       next(error);
     }
   },
@@ -107,7 +111,7 @@ module.exports = {
         where: { id: departmentId, deletedAt: null },
       });
       if (!findDepartment) {
-        throw createError(404, "Department not found");
+        throw new createError(404, "Department not found");
       }
       await prisma.department.update({
         where: { id: departmentId },
@@ -120,6 +124,7 @@ module.exports = {
         message: "Department deleted successfully",
       });
     } catch (error) {
+      console.log(error);
       next(error);
     }
   },

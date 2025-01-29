@@ -8,7 +8,7 @@ module.exports = {
         where: { deletedAt: null },
       });
       if (!institution) {
-        throw createError(404, "Institution not found");
+        throw new createError(404, "Institution not found");
       }
       const data = institution.map((institution) => {
         return {
@@ -21,6 +21,7 @@ module.exports = {
         data: data,
       });
     } catch (error) {
+      console.log(error);
       next(error);
     }
   },
@@ -33,7 +34,7 @@ module.exports = {
         where: { id: idInt, deletedAt: null },
       });
       if (!institution) {
-        throw createError(404, "Institution not found");
+        throw new createError(404, "Institution not found");
       }
       const data = {
         id: institution.id,
@@ -44,6 +45,7 @@ module.exports = {
         data: data,
       });
     } catch (error) {
+      console.log(error);
       next(error);
     }
   },
@@ -52,13 +54,13 @@ module.exports = {
     try {
       const { name } = req.body;
       if (!name) {
-        throw createError(400, "Institution name is required");
+        throw new createError(400, "Institution name is required");
       }
       const findInstitution = await prisma.institution.findFirst({
         where: { name, deletedAt: null },
       });
       if (findInstitution) {
-        throw createError(409, "Institution already exists");
+        throw new createError(409, "Institution already exists");
       }
       await prisma.institution.create({
         data: {
@@ -70,6 +72,7 @@ module.exports = {
         massage: "Institution created successfully",
       });
     } catch (error) {
+      console.log(error);
       next(error);
     }
   },
@@ -80,13 +83,13 @@ module.exports = {
       const idInt = parseInt(id);
       const { name } = req.body;
       if (!name) {
-        throw createError(400, "Institution name is required");
+        throw new createError(400, "Institution name is required");
       }
       const findInstitution = await prisma.institution.findUnique({
         where: { id: idInt, deletedAt: null },
       });
       if (!findInstitution) {
-        throw createError(404, "Institution not found");
+        throw new createError(404, "Institution not found");
       }
       await prisma.institution.update({
         where: { id: idInt },
@@ -99,6 +102,7 @@ module.exports = {
         massage: "Institution updated successfully",
       });
     } catch (error) {
+      console.log(error);
       next(error);
     }
   },
@@ -112,7 +116,7 @@ module.exports = {
         where: { id: idInt, deletedAt: null },
       });
       if (!findInstitution) {
-        throw createError(404, "Institution not found");
+        throw new createError(404, "Institution not found");
       }
       await prisma.institution.update({
         where: { id: idInt },
@@ -125,6 +129,7 @@ module.exports = {
         massage: "Institution deleted successfully",
       });
     } catch (error) {
+      console.log(error);
       next(error);
     }
   },

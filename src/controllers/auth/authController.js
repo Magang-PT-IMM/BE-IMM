@@ -15,7 +15,7 @@ module.exports = {
       });
 
       if (findUser) {
-        throw createError(409, "User already exists");
+        throw new createError(409, "User already exists");
       }
 
       const password = randomPassword({
@@ -58,6 +58,7 @@ module.exports = {
           "User registered successfully, Please inform registered users to check email",
       });
     } catch (error) {
+      console.log(error);
       next(error);
     }
   },
@@ -71,13 +72,13 @@ module.exports = {
       });
 
       if (!findUser) {
-        throw createError(404, "User not found");
+        throw new createError(404, "User not found");
       }
 
       const isMatch = await comparePassword(password, findUser.password);
 
       if (!isMatch) {
-        throw createError(401, "Your email or password is incorrect");
+        throw new createError(401, "Your email or password is incorrect");
       }
 
       const user = await prisma.user.findUnique({
@@ -100,6 +101,7 @@ module.exports = {
         },
       });
     } catch (error) {
+      console.log(error);
       next(error);
     }
   },
@@ -110,14 +112,14 @@ module.exports = {
       const { id } = res.user;
 
       if (!currentPassword || !newPassword) {
-        throw createError(
+        throw new createError(
           400,
           "Current password and new password are required"
         );
       }
 
       if (currentPassword === newPassword) {
-        throw createError(
+        throw new createError(
           400,
           "Current password and new password cannot be the same"
         );
@@ -128,7 +130,7 @@ module.exports = {
       });
 
       if (!findUser) {
-        throw createError(404, "User not found");
+        throw new createError(404, "User not found");
       }
 
       const authUser = await prisma.auth.findUnique({
@@ -136,13 +138,13 @@ module.exports = {
       });
 
       if (!authUser) {
-        throw createError(404, "User not found");
+        throw new createError(404, "User not found");
       }
 
       const isMatch = await comparePassword(currentPassword, authUser.password);
 
       if (!isMatch) {
-        throw createError(401, "Your current password is incorrect");
+        throw new createError(401, "Your current password is incorrect");
       }
 
       const hashedPassword = await hashPassword(newPassword);
@@ -172,7 +174,7 @@ module.exports = {
       const { id } = res.user;
 
       if (!newPassword) {
-        throw createError(
+        throw new createError(
           400,
           "Current password and new password are required"
         );
@@ -183,7 +185,7 @@ module.exports = {
       });
 
       if (!findUser) {
-        throw createError(404, "User not found");
+        throw new createError(404, "User not found");
       }
 
       const authUser = await prisma.auth.findUnique({
@@ -191,13 +193,13 @@ module.exports = {
       });
 
       if (!authUser) {
-        throw createError(404, "User not found");
+        throw new createError(404, "User not found");
       }
 
       const isMatch = await comparePassword(newPassword, authUser.password);
 
       if (isMatch) {
-        throw createError(
+        throw new createError(
           400,
           "Current password and new password cannot be the same"
         );
@@ -231,7 +233,7 @@ module.exports = {
       });
 
       if (!findUser) {
-        throw createError(404, "User not found");
+        throw new createError(404, "User not found");
       }
 
       const authUser = await prisma.auth.findUnique({
@@ -239,7 +241,7 @@ module.exports = {
       });
 
       if (!authUser) {
-        throw createError(404, "User not found");
+        throw new createError(404, "User not found");
       }
 
       const password = randomPassword({
@@ -269,6 +271,7 @@ module.exports = {
           "User password has been successfully reset. Please inform the user to check their email.",
       });
     } catch (error) {
+      console.log(error);
       next(error);
     }
   },

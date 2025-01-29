@@ -9,7 +9,7 @@ module.exports = {
       });
 
       if (!permitCategory) {
-        throw createError(404, "Institution not found");
+        throw new createError(404, "Institution not found");
       }
 
       const data = permitCategory.map((permitCategory) => {
@@ -21,7 +21,8 @@ module.exports = {
 
       return res.status(200).json({ success: true, data: data });
     } catch (error) {
-      throw createError(500, error.message);
+      console.log(error);
+      next(error);
     }
   },
   getPermitCategoryById: async (req, res, next) => {
@@ -32,7 +33,7 @@ module.exports = {
         where: { id: idInt, deletedAt: null },
       });
       if (!permitCategory) {
-        throw createError(404, "Permit Category not found");
+        throw new createError(404, "Permit Category not found");
       }
       const data = {
         id: permitCategory.id,
@@ -40,6 +41,7 @@ module.exports = {
       };
       return res.status(200).json({ success: true, data: data });
     } catch (error) {
+      console.log(error);
       next(error);
     }
   },
@@ -48,13 +50,13 @@ module.exports = {
     try {
       const { name } = req.body;
       if (!name) {
-        throw createError(400, "Permit Category name is required");
+        throw new createError(400, "Permit Category name is required");
       }
       const findPermitCategory = await prisma.permitCategory.findFirst({
         where: { name, deletedAt: null },
       });
       if (findPermitCategory) {
-        throw createError(409, "Permit Category already exists");
+        throw new createError(409, "Permit Category already exists");
       }
       await prisma.permitCategory.create({
         data: {
@@ -66,6 +68,7 @@ module.exports = {
         message: "Permit Category created successfully",
       });
     } catch (error) {
+      console.log(error);
       next(error);
     }
   },
@@ -76,13 +79,13 @@ module.exports = {
       const idInt = parseInt(id);
       const { name } = req.body;
       if (!name) {
-        throw createError(400, "Permit Category name is required");
+        throw new createError(400, "Permit Category name is required");
       }
       const findPermitCategory = await prisma.permitCategory.findUnique({
         where: { id: idInt, deletedAt: null },
       });
       if (!findPermitCategory) {
-        throw createError(404, "Permit Category not found");
+        throw new createError(404, "Permit Category not found");
       }
       await prisma.permitCategory.update({
         where: { id: idInt },
@@ -95,6 +98,7 @@ module.exports = {
         message: "Permit Category updated successfully",
       });
     } catch (error) {
+      console.log(error);
       next(error);
     }
   },
@@ -107,7 +111,7 @@ module.exports = {
         where: { id: idInt, deletedAt: null },
       });
       if (!findPermitCategory) {
-        throw createError(404, "Permit Category not found");
+        throw new createError(404, "Permit Category not found");
       }
       await prisma.permitCategory.update({
         where: { id: idInt },
@@ -120,6 +124,7 @@ module.exports = {
         message: "Permit Category deleted successfully",
       });
     } catch (error) {
+      console.log(error);
       next(error);
     }
   },

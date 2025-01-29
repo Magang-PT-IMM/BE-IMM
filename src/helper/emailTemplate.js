@@ -18,7 +18,7 @@ const emailTemplates = {
             <!-- Header Image -->
             <tr>
               <td>
-                <img src="https://ik.imagekit.io/vyck38py3/Group%2018.png"
+                <img src="https://ik.imagekit.io/vyck38py3/Group%2018.png?updatedAt=1737896281354"
                      style="width: 100%; height: auto; display: block;">
               </td>
             </tr>
@@ -89,7 +89,7 @@ const emailTemplates = {
             <!-- Header Image -->
             <tr>
               <td>
-                <img src="https://ik.imagekit.io/vyck38py3/Group%2018.png"
+                <img src="https://ik.imagekit.io/vyck38py3/Group%2018.png?updatedAt=1737896281354"
                      style="width: 100%; height: auto; display: block;">
               </td>
             </tr>
@@ -155,7 +155,7 @@ const emailTemplates = {
     from: `IMM Remember" <friilim19@gmail.com>`,
     to,
     cc,
-    subject: `Ticket ${ticketId} Notification`,
+    subject: `Pemberitahuan Ticket ${ticketId}`,
     html: `
         <!DOCTYPE html>
 <html>
@@ -172,7 +172,7 @@ const emailTemplates = {
             <!-- Header Image -->
             <tr>
               <td>
-                <img src="https://ik.imagekit.io/vyck38py3/Group%2018.png"
+                <img src="https://ik.imagekit.io/vyck38py3/Group%2018.png?updatedAt=1737896281354"
                      style="width: 100%; height: 100px; object-fit: contain; display: block;">
               </td>
             </tr>
@@ -183,7 +183,7 @@ const emailTemplates = {
             <!-- Email Content -->
             <tr>
               <td style="padding: 20px; color: #637381; font-size: 14px;">
-                <h2 style="margin: 0 0 16px; color: #000;">Remember Ticket ${ticketId}</h2>
+                <h2 style="margin: 0 0 16px; color: #000;">Pemberitahuan Ticket ${ticketId}</h2>
                 <p style="margin: 0 0 12px; color: #637381; font-size: 12px;">Dear ${name},</p>
                 <p style="margin: 0 0 12px; color: #637381; font-size: 12px;">Berikut status terakhir dari ticket yang telah dibuat pada aplikasi iRemember,</p>
                 <table style="width: 100%; margin: 16px 0; border-spacing: 0;">
@@ -254,7 +254,7 @@ const emailTemplates = {
     from: `IMM Remember" <friilim19@gmail.com>`,
     to,
     cc,
-    subject: `Create Ticket ${ticketId}`,
+    subject: `Pembuatan Ticket ${ticketId}`,
     html: `
         <!DOCTYPE html>
 <html>
@@ -271,7 +271,7 @@ const emailTemplates = {
             <!-- Header Image -->
             <tr>
               <td>
-                <img src="https://ik.imagekit.io/vyck38py3/Group%2018.png"
+                <img src="https://ik.imagekit.io/vyck38py3/Group%2018.png?updatedAt=1737896281354"
                      style="width: 100%; height: 100px; object-fit: contain; display: block;">
               </td>
             </tr>
@@ -282,7 +282,7 @@ const emailTemplates = {
             <!-- Email Content -->
             <tr>
               <td style="padding: 20px; color: #637381; font-size: 14px;">
-                <h2 style="margin: 0 0 16px; color: #000;">Create Ticket ${ticketId}</h2>
+                <h2 style="margin: 0 0 16px; color: #000;">Pembuatan Ticket ${ticketId}</h2>
                 <p style="margin: 0 0 12px; color: #637381; font-size: 12px;">Dear ${externalRelation},</p>
                 <p style="margin: 0 0 12px; color: #637381; font-size: 12px;">Tiket telah dibuat oleh Departemen <strong>${department}</strong> melalui aplikasi IRemember. Berikut adalah detail tiket tersebut:</p>
                 <table style="width: 100%; margin: 16px 0; border-spacing: 0;">
@@ -339,7 +339,105 @@ const emailTemplates = {
       `,
   }),
 
+  updateTicket: (
+    to,
+    ticketId,
+    department,
+    permitName,
+    permitCategory,
+    institution,
+    description,
+    cc
+  ) => ({
+    from: `IMM Remember" <friilim19@gmail.com>`,
+    to,
+    cc,
+    subject: `Pembaruan Ticket ${ticketId}`,
+    html: `
+          <!DOCTYPE html>
+  <html>
+    <head>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+      <title>Akun IRemember</title>
+    </head>
+    <body style="margin: 0; padding: 0; background-color: #d1cdcd; font-family: Arial, sans-serif;">
+      <table style="width: 100%; background-color: #d1cdcd; text-align: center; padding: 20px;">
+        <tr>
+          <td>
+            <table style="background: #ffffff; margin: 0 auto; width: auto; text-align: left; border-spacing: 0; border-collapse: collapse; overflow: hidden; border-radius: 8px;">
+              <!-- Header Image -->
+              <tr>
+                <td>
+                  <img src="https://ik.imagekit.io/vyck38py3/Group%2018.png?updatedAt=1737896281354"
+                       style="width: 100%; height: 100px; object-fit: contain; display: block;">
+                </td>
+              </tr>
+              <!-- Divider Line -->
+              <tr>
+                <td style="background-color: #482f92; height: 4px;"></td>
+              </tr>
+              <!-- Email Content -->
+              <tr>
+                <td style="padding: 20px; color: #637381; font-size: 14px;">
+                  <h2 style="margin: 0 0 16px; color: #000;">Pembaruan Ticket ${ticketId}</h2> 
+                  <p style="margin: 0 0 12px; color: #637381; font-size: 12px;">Tiket dengan id <strong>${ticketId}</strong> telah diperbarui oleh Departemen <strong>${department}</strong> melalui aplikasi IRemember. Berikut adalah detail terbaru dari tiket tersebut:</p>
+                  <table style="width: 100%; margin: 16px 0; border-spacing: 0;">
+                    <tr>
+                      <td style="width:140px;color: #000; font-size: 12px; padding-bottom: 8px;vertical-align: top;white-space: nowrap;"><strong>Ticket Number</strong></td>
+                      <td style="width:auto;color: #000; font-size: 12px; padding-bottom: 8px;max-width: 400px; word-wrap: break-word; overflow-wrap: break-word; white-space: normal;">: ${ticketId}</td>
+                    </tr>
+                    <tr>
+                      <td style="color: #000; font-size: 12px; padding-bottom: 8px;vertical-align: top;white-space: nowrap;"><strong>Permit Name</strong></td>
+                      <td style="color: #000; font-size: 12px; padding-bottom: 8px;max-width: 400px; word-wrap: break-word; overflow-wrap: break-word; white-space: normal;">: ${permitName}</td>
+                    </tr>
+                    <tr>
+                      <td style="color: #000; font-size: 12px; padding-bottom: 8px;vertical-align: top;white-space: nowrap;"><strong>Permit Category</strong></td>
+                      <td style="color: #000; font-size: 12px; padding-bottom: 8px;max-width: 400px; word-wrap: break-word; overflow-wrap: break-word; white-space: normal;">: ${permitCategory}</td>
+                    </tr>
+                    <tr>
+                      <td style="color: #000; font-size: 12px; padding-bottom: 8px;vertical-align: top;white-space: nowrap;"><strong>Institution</strong></td>
+                      <td style="color: #000; font-size: 12px; padding-bottom: 8px;max-width: 400px; word-wrap: break-word; overflow-wrap: break-word; white-space: normal;">: ${institution}</td>
+                    </tr>
+                    <tr>
+                      <td style="color: #000; font-size: 12px; padding-bottom: 8px;vertical-align: top;white-space: nowrap;"><strong>Owner Permit</strong></td>
+                      <td style="color: #000; font-size: 12px; padding-bottom: 8px;max-width: 400px; word-wrap: break-word; overflow-wrap: break-word; white-space: normal;">: ${department}</td>
+                    </tr>
+                    <tr>
+                      <td style="color: #000; font-size: 12px; padding-bottom: 0px; vertical-align: top;white-space: nowrap;"><strong>Description (optional)</strong></td>
+                      <td style="color: #000; font-size: 12px; padding-bottom: 0px;max-width: 800px; word-wrap: break-word; overflow-wrap: break-word; white-space: normal;">: ${description}</td>
+                    </tr>
+                  </table>
+                  <p style="margin: 0 0 8px; font-size: 12px; color: #637381;">
+                    Mohon meninjau pembaruan tiket ${ticketId} dan menunggu informasi lebih lanjut dari Departemen ${department}.
+                  </p>
+                  <p style="margin: 0 0 16px; font-size: 12px; color: #637381;">
+                    Silakan klik tombol di bawah untuk melihat tiket <strong>${ticketId}</strong>.
+                  </p>
+                  <!-- Button -->
+                  <p style="text-align: center; margin: 0 0 20px;">
+                    <a href="https://your-login-link.com" 
+                       style="display: inline-block; background-color: #482f92; color: #ffffff; padding: 10px 30px; text-decoration: none; border-radius: 4px; font-size: 14px;">View</a>
+                  </p>
+                  <p style="margin: 0; font-size: 12px; color: #637381;">Salam hangat,<br>
+                    <strong style="color: #000;margin: 0 0 16px;">Tim IRemember</strong>
+                  </p>
+                  <p style="font-size: 10px; color: #637381;">
+                    <i>Note: Email ini dikirim secara otomatis oleh sistem iRemember<i>
+                  </p>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </body>
+  </html>
+        `,
+  }),
+
   createPermit: (
+    to,
     permitId,
     permitNumber,
     permitName,
@@ -351,20 +449,19 @@ const emailTemplates = {
     expireDate,
     status,
     description,
-    to,
     cc
   ) => ({
     from: `IMM Remember" <friilim19@gmail.com>`,
     to,
     cc,
-    subject: `Create Permit ${permitId}`,
+    subject: `Pembuatan Permit ${permitId}`,
     html: `
           <!DOCTYPE html>
   <html>
     <head>
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-      <title>Akun IRemember</title>
+      <title>Pembuatan Permit</title>
     </head>
     <body style="margin: 0; padding: 0; background-color: #d1cdcd; font-family: Arial, sans-serif;">
       <table style="width: 100%; background-color: #d1cdcd; text-align: center; padding: 20px;">
@@ -385,8 +482,10 @@ const emailTemplates = {
               <!-- Email Content -->
               <tr>
                 <td style="padding: 20px; color: #637381; font-size: 14px;">
-                  <h2 style="margin: 0 0 16px; color: #000;">Create Permit ${permitId}</h2>
-                  <p style="margin: 0 0 12px; color: #637381; font-size: 12px;">Permit telah dibuat melalui aplikasi IRemember. Berikut adalah detail permit tersebut:</p>
+                  <h2 style="margin: 0 0 16px; color: #000;">Pembuatan Permit ${permitId}</h2>
+                  <p style="margin: 0 0 12px; color: #637381; font-size: 12px;">
+                    Permit telah berhasil dibuat melalui aplikasi IRemember. Berikut adalah rincian dari permit tersebut:
+                  </p>
                   <table style="width: 100%; margin: 16px 0; border-spacing: 0;">
                     <tr>
                       <td style="width:140px;color: #000; font-size: 12px; padding-bottom: 8px;vertical-align: top;white-space: nowrap;"><strong>Permit Number</strong></td>
@@ -430,10 +529,10 @@ const emailTemplates = {
                     </tr>
                   </table>
                   <p style="margin: 0 0 8px; font-size: 12px; color: #637381;">
-                    Terimakasih atas kontribusinya dalam pembuatan permit <strong>${permitName}</strong>.
+                    Terima kasih telah membuat permit <strong>${permitName}</strong>.
                   </p>
                   <p style="margin: 0 0 16px; font-size: 12px; color: #637381;">
-                    Silahkan klik button dibawah ini untuk melihat permit.
+                    Klik tombol di bawah untuk melihat detail permit.
                   </p>
                   <!-- Button -->
                   <p style="text-align: center; margin: 0 0 20px;">
@@ -445,6 +544,124 @@ const emailTemplates = {
                   </p>
                   <p style="font-size: 10px; color: #637381;">
                     <i>Note: Email ini dikirim secara otomatis oleh sistem iRemember<i>
+                  </p>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </body>
+  </html>
+        `,
+  }),
+
+  updatePermit: (
+    to,
+    permitId,
+    permitNumber,
+    permitName,
+    permitCategory,
+    institution,
+    department,
+    issueDate,
+    validityPeriod,
+    expireDate,
+    status,
+    description,
+    cc
+  ) => ({
+    from: `IMM Remember" <friilim19@gmail.com>`,
+    to,
+    cc,
+    subject: `Pembaruan Permit ${permitId}`,
+    html: `
+          <!DOCTYPE html>
+  <html>
+    <head>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+      <title>Pembaruan Permit ${permitId}</title>
+    </head>
+    <body style="margin: 0; padding: 0; background-color: #d1cdcd; font-family: Arial, sans-serif;">
+      <table style="width: 100%; background-color: #d1cdcd; text-align: center; padding: 20px;">
+        <tr>
+          <td>
+            <table style="background: #ffffff; margin: 0 auto; width: auto; text-align: left; border-spacing: 0; border-collapse: collapse; overflow: hidden; border-radius: 8px;">
+              <!-- Header Image -->
+              <tr>
+                <td>
+                  <img src="https://ik.imagekit.io/vyck38py3/Group%2018s.png"
+                       style="width: 100%; height: 100px; object-fit: contain; display: block;">
+                </td>
+              </tr>
+              <!-- Divider Line -->
+              <tr>
+                <td style="background-color: #482f92; height: 4px;"></td>
+              </tr>
+              <!-- Email Content -->
+              <tr>
+                <td style="padding: 20px; color: #637381; font-size: 14px;">
+                  <h2 style="margin: 0 0 16px; color: #000;">Pembaruan Permit ${permitId}</h2>
+                  <p style="margin: 0 0 12px; color: #637381; font-size: 12px;">Permit dengan ID <strong>${permitId}</strong> telah berhasil diperbarui melalui aplikasi IRemember. Berikut adalah detail dari permit tersebut:</p>
+                  <table style="width: 100%; margin: 16px 0; border-spacing: 0;">
+                    <tr>
+                      <td style="width:140px;color: #000; font-size: 12px; padding-bottom: 8px;vertical-align: top;white-space: nowrap;"><strong>Permit Number</strong></td>
+                      <td style="width:auto;color: #000; font-size: 12px; padding-bottom: 8px;max-width: 400px; word-wrap: break-word; overflow-wrap: break-word; white-space: normal;">: ${permitNumber}</td>
+                    </tr>
+                    <tr>
+                      <td style="color: #000; font-size: 12px; padding-bottom: 8px;vertical-align: top;white-space: nowrap;"><strong>Permit Name</strong></td>
+                      <td style="color: #000; font-size: 12px; padding-bottom: 8px;max-width: 400px; word-wrap: break-word; overflow-wrap: break-word; white-space: normal;">: ${permitName}</td>
+                    </tr>
+                    <tr>
+                      <td style="color: #000; font-size: 12px; padding-bottom: 8px;vertical-align: top;white-space: nowrap;"><strong>Permit Category</strong></td>
+                      <td style="color: #000; font-size: 12px; padding-bottom: 8px;max-width: 400px; word-wrap: break-word; overflow-wrap: break-word; white-space: normal;">: ${permitCategory}</td>
+                    </tr>
+                    <tr>
+                      <td style="color: #000; font-size: 12px; padding-bottom: 8px;vertical-align: top;white-space: nowrap;"><strong>Institution</strong></td>
+                      <td style="color: #000; font-size: 12px; padding-bottom: 8px;max-width: 400px; word-wrap: break-word; overflow-wrap: break-word; white-space: normal;">: ${institution}</td>
+                    </tr>
+                    <tr>
+                      <td style="color: #000; font-size: 12px; padding-bottom: 8px;vertical-align: top;white-space: nowrap;"><strong>Owner Permit</strong></td>
+                      <td style="color: #000; font-size: 12px; padding-bottom: 8px;max-width: 400px; word-wrap: break-word; overflow-wrap: break-word; white-space: normal;">: ${department}</td>
+                    </tr>
+                    <tr>
+                      <td style="color: #000; font-size: 12px; padding-bottom: 8px;vertical-align: top;white-space: nowrap;"><strong>Issue Date</strong></td>
+                      <td style="color: #000; font-size: 12px; padding-bottom: 8px;max-width: 400px; word-wrap: break-word; overflow-wrap: break-word; white-space: normal;">: ${issueDate}</td>
+                    </tr>
+                    <tr>
+                      <td style="color: #000; font-size: 12px; padding-bottom: 8px;vertical-align: top;white-space: nowrap;"><strong>Validity Period</strong></td>
+                      <td style="color: #000; font-size: 12px; padding-bottom: 8px;max-width: 400px; word-wrap: break-word; overflow-wrap: break-word; white-space: normal;">: ${validityPeriod}</td>
+                    </tr>
+                    <tr>
+                      <td style="color: #000; font-size: 12px; padding-bottom: 8px;vertical-align: top;white-space: nowrap;"><strong>Expire Date</strong></td>
+                      <td style="color: #000; font-size: 12px; padding-bottom: 8px;max-width: 400px; word-wrap: break-word; overflow-wrap: break-word; white-space: normal;">: ${expireDate}</td>
+                    </tr>
+                    <tr>
+                      <td style="color: #000; font-size: 12px; padding-bottom: 8px;vertical-align: top;white-space: nowrap;"><strong>Status</strong></td>
+                      <td style="color: #000; font-size: 12px; padding-bottom: 8px;max-width: 400px; word-wrap: break-word; overflow-wrap: break-word; white-space: normal;">: ${status}</td>
+                    </tr>
+                    <tr>
+                      <td style="color: #000; font-size: 12px; padding-bottom: 0px; vertical-align: top;white-space: nowrap;"><strong>Description (optional)</strong></td>
+                      <td style="color: #000; font-size: 12px; padding-bottom: 0px;max-width: 800px; word-wrap: break-word; overflow-wrap: break-word; white-space: normal;">: ${description}</td>
+                    </tr>
+                  </table>
+                  <p style="margin: 0 0 8px; font-size: 12px; color: #637381;">
+                    Terima kasih atas perhatian Anda terhadap pembaruan permit ini.
+                  </p>
+                  <p style="margin: 0 0 16px; font-size: 12px; color: #637381;">
+                    Silakan klik tombol di bawah ini untuk melihat detail permit.
+                  </p>
+                  <!-- Button -->
+                  <p style="text-align: center; margin: 0 0 20px;">
+                    <a href="https://your-login-link.com" 
+                       style="display: inline-block; background-color: #482f92; color: #ffffff; padding: 10px 30px; text-decoration: none; border-radius: 4px; font-size: 14px;">View</a>
+                  </p>
+                  <p style="margin: 0; font-size: 12px; color: #637381;">Salam hangat,<br>
+                    <strong style="color: #000;margin: 0 0 16px;">Tim IRemember</strong>
+                  </p>
+                  <p style="font-size: 10px; color: #637381;">
+                    <i>Catatan: Email ini dikirim secara otomatis oleh sistem iRemember.<i>
                   </p>
                 </td>
               </tr>
