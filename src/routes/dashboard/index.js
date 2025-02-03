@@ -1,7 +1,7 @@
 const express = require("express");
-const permitCategory = require("./permitCategoryRoute");
+const dashboardRoute = require("./dashboardRoute");
 const router = express.Router();
 
-router.use(permitCategory);
+router.use(dashboardRoute);
 
 module.exports = router;

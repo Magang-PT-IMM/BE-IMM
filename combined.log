@@ -1,0 +1,15 @@
+2025-02-03T16:13:38.311Z [info]: Server is running on http://localhost:6969
+2025-02-03T16:13:44.604Z [info]: Server is running on http://localhost:6969
+2025-02-03T16:13:53.106Z [info]: Server is running on http://localhost:6969
+2025-02-03T16:13:59.812Z [info]: Server is running on http://localhost:6969
+2025-02-03T16:20:20.546Z [info]: Server is running on http://localhost:6969
+2025-02-03T16:23:05.724Z [info]: Server is running on http://localhost:6969
+2025-02-03T16:28:16.252Z [info]: Server is running on http://localhost:6969
+2025-02-03T16:30:18.187Z [info]: Server is running on http://localhost:6969
+2025-02-03T16:30:57.208Z [info]: Server is running on http://localhost:6969
+2025-02-03T16:32:34.694Z [info]: Server is running on http://localhost:6969
+2025-02-03T16:37:02.051Z [info]: Server is running on http://localhost:6969
+2025-02-03T16:39:53.295Z [info]: Server is running on http://localhost:6969
+2025-02-03T16:42:53.354Z [info]: Server is running on http://localhost:3000
+2025-02-03T23:25:27.182Z [info]: Server is running on http://localhost:3000
+2025-02-03T23:26:02.226Z [info]: POST /api/v1/auth/login 200 - User: Guest - Response Time: 3425.472 ms

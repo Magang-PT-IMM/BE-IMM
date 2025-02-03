@@ -15,7 +15,7 @@ module.exports = {
       });
 
       if (findUser) {
-        throw new createError(409, "User already exists");
+        throw createError(409, "User already exists");
       }
 
       const password = randomPassword({
@@ -31,6 +31,7 @@ module.exports = {
             email,
             password: hashedPassword,
             reNewPassword: false,
+            role,
           },
         });
 
@@ -38,7 +39,6 @@ module.exports = {
           data: {
             authId: authUser.id,
             name,
-            role,
             departmentId,
           },
         });
@@ -66,19 +66,19 @@ module.exports = {
   login: async (req, res, next) => {
     try {
       const { email, password } = req.body;
-
+      console.log(email, password);
       const findUser = await prisma.auth.findUnique({
         where: { email, deletedAt: null },
       });
 
       if (!findUser) {
-        throw new createError(404, "User not found");
+        throw createError(404, "User not found");
       }
 
       const isMatch = await comparePassword(password, findUser.password);
 
       if (!isMatch) {
-        throw new createError(401, "Your email or password is incorrect");
+        throw createError(401, "Your email or password is incorrect");
       }
 
       const user = await prisma.user.findUnique({
@@ -87,8 +87,8 @@ module.exports = {
 
       const token = generateToken({
         id: user.id,
-        email: findUser.email,
-        role: user.role,
+        name: user.name,
+        role: findUser.role,
       });
 
       return res.status(200).json({
@@ -96,7 +96,7 @@ module.exports = {
         message: "User logged in successfully",
         data: {
           token,
-          role: user.role,
+          role: findUser.role,
           reNewPassword: findUser.reNewPassword,
         },
       });
@@ -112,14 +112,14 @@ module.exports = {
       const { id } = res.user;
 
       if (!currentPassword || !newPassword) {
-        throw new createError(
+        throw createError(
           400,
           "Current password and new password are required"
         );
       }
 
       if (currentPassword === newPassword) {
-        throw new createError(
+        throw createError(
           400,
           "Current password and new password cannot be the same"
         );
@@ -130,7 +130,7 @@ module.exports = {
       });
 
       if (!findUser) {
-        throw new createError(404, "User not found");
+        throw createError(404, "User not found");
       }
 
       const authUser = await prisma.auth.findUnique({
@@ -138,13 +138,13 @@ module.exports = {
       });
 
       if (!authUser) {
-        throw new createError(404, "User not found");
+        throw createError(404, "User not found");
       }
 
       const isMatch = await comparePassword(currentPassword, authUser.password);
 
       if (!isMatch) {
-        throw new createError(401, "Your current password is incorrect");
+        throw createError(401, "Your current password is incorrect");
       }
 
       const hashedPassword = await hashPassword(newPassword);
@@ -174,7 +174,7 @@ module.exports = {
       const { id } = res.user;
 
       if (!newPassword) {
-        throw new createError(
+        throw createError(
           400,
           "Current password and new password are required"
         );
@@ -185,7 +185,7 @@ module.exports = {
       });
 
       if (!findUser) {
-        throw new createError(404, "User not found");
+        throw createError(404, "User not found");
       }
 
       const authUser = await prisma.auth.findUnique({
@@ -193,13 +193,13 @@ module.exports = {
       });
 
       if (!authUser) {
-        throw new createError(404, "User not found");
+        throw createError(404, "User not found");
       }
 
       const isMatch = await comparePassword(newPassword, authUser.password);
 
       if (isMatch) {
-        throw new createError(
+        throw createError(
           400,
           "Current password and new password cannot be the same"
         );
@@ -233,7 +233,7 @@ module.exports = {
       });
 
       if (!findUser) {
-        throw new createError(404, "User not found");
+        throw createError(404, "User not found");
       }
 
       const authUser = await prisma.auth.findUnique({
@@ -241,7 +241,7 @@ module.exports = {
       });
 
       if (!authUser) {
-        throw new createError(404, "User not found");
+        throw createError(404, "User not found");
       }
 
       const password = randomPassword({

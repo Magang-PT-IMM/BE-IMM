@@ -3,3 +3,4 @@ node_modules
 .env
 prisma/migrations/
 prisma/seed/
+iremember-449706-dc1f349c8bf3.json

@@ -42,7 +42,7 @@ module.exports = {
         });
 
         if (!findUser) {
-          throw new createError(404, "User not found");
+          throw createError(404, "User not found");
         }
 
         if (email && email !== findUser.auth.email) {
@@ -54,7 +54,7 @@ module.exports = {
           });
 
           if (authUser) {
-            throw new createError(409, "Email already exists");
+            throw createError(409, "Email already exists");
           }
 
           await prisma.auth.update({
@@ -220,7 +220,7 @@ module.exports = {
         });
 
         if (!findUser) {
-          throw new createError(404, "User not found");
+          throw createError(404, "User not found");
         }
 
         await prisma.user.update({
@@ -241,7 +241,7 @@ module.exports = {
           });
 
           if (emailExists) {
-            throw new createError(400, "Email already in use");
+            throw createError(400, "Email already in use");
           }
 
           await prisma.auth.update({

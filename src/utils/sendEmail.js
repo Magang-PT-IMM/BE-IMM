@@ -12,77 +12,38 @@ const sendEmailService = {
           emailParams.password,
           emailParams.name
         );
-      } else if (emailType === "createTicket") {
-        mailOptions = emailTemplates.createTicket(
-          emailParams.to,
-          emailParams.ticketId,
-          emailParams.department,
-          emailParams.permitName,
-          emailParams.permitCategory,
-          emailParams.institution,
-          emailParams.externalRelation,
-          emailParams.description,
-          emailParams.cc
-        );
       } else if (emailType === "resetPassword") {
         mailOptions = emailTemplates.resetPassword(
           emailParams.to,
           emailParams.password,
           emailParams.name
         );
-      } else if (emailType === "rememberNotification") {
-        mailOptions = emailTemplates.rememberNotification(
+      } else if (emailType === "rememberObligation") {
+        mailOptions = emailTemplates.rememberObligation(
           emailParams.to,
-          emailParams.ticketId,
-          emailParams.name,
-          emailParams.permitName,
-          emailParams.lastStatus,
-          emailParams.lastStatusDescription,
-          emailParams.lastUpdate,
-          emailParams.lastUpdateBy,
-          emailParams.cc
-        );
-      } else if (emailType === "createPermit") {
-        mailOptions = emailTemplates.createPermit(
-          emailParams.to,
-          emailParams.permitId,
-          emailParams.permitNumber,
-          emailParams.permitName,
-          emailParams.permitCategory,
+          emailParams.obligationId,
+          emailParams.obligationName,
+          emailParams.obligationType,
+          emailParams.obligationCategory,
           emailParams.institution,
-          emailParams.department,
-          emailParams.issueDate,
-          emailParams.validityPeriod,
-          emailParams.expireDate,
+          emailParams.description,
+          emailParams.dueDate,
           emailParams.status,
-          emailParams.description,
+          emailParams.latestUpdate,
           emailParams.cc
         );
-      } else if (emailType === "updatePermit") {
-        mailOptions = emailTemplates.updatePermit(
+      } else if (emailType === "actionObligation") {
+        mailOptions = emailTemplates.actionObligation(
           emailParams.to,
-          emailParams.permitId,
-          emailParams.permitNumber,
-          emailParams.permitName,
-          emailParams.permitCategory,
+          emailParams.action,
+          emailParams.obligationId,
+          emailParams.obligationName,
+          emailParams.obligationType,
+          emailParams.obligationCategory,
           emailParams.institution,
-          emailParams.department,
-          emailParams.issueDate,
-          emailParams.validityPeriod,
-          emailParams.expireDate,
+          emailParams.description,
+          emailParams.dueDate,
           emailParams.status,
-          emailParams.description,
-          emailParams.cc
-        );
-      } else if (emailType === "updateTicket") {
-        mailOptions = emailTemplates.updateTicket(
-          emailParams.to,
-          emailParams.ticketId,
-          emailParams.department,
-          emailParams.permitName,
-          emailParams.permitCategory,
-          emailParams.institution,
-          emailParams.description,
           emailParams.cc
         );
       } else {

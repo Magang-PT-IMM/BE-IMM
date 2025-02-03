@@ -6,16 +6,28 @@ module.exports = {
     try {
       const department = await prisma.department.findMany({
         where: { deletedAt: null },
+        include: {
+          parentDepartment: true,
+          subDepartments: true,
+        },
       });
       if (!department) {
-        throw new createError(404, "Department not found");
+        throw createError(404, "Department not found");
       }
-      const data = department.map((department) => {
-        return {
-          id: department.id,
-          name: department.name,
-        };
-      });
+      const data = department.map((departments) => ({
+        id: departments.id,
+        name: departments.name,
+        parentDepartment: departments.parentDepartment
+          ? {
+              id: departments.parentDepartment.id,
+              name: departments.parentDepartment.name,
+            }
+          : null,
+        subDepartments: departments.subDepartments.map((sub) => ({
+          id: sub.id,
+          name: sub.name,
+        })),
+      }));
       return res.status(200).json({
         success: true,
         data: data,
@@ -28,16 +40,21 @@ module.exports = {
   getDepartmentById: async (req, res, next) => {
     try {
       const { id } = req.params;
-      const departmentId = parseInt(id);
       const department = await prisma.department.findFirst({
-        where: { id: departmentId, deletedAt: null },
+        where: { id, deletedAt: null },
+        include: {
+          parentDepartment: true,
+        },
       });
       if (!department) {
-        throw new createError(404, "Department not found");
+        throw createError(404, "Department not found");
       }
       const data = {
         id: department.id,
         name: department.name,
+        parentDepartment: department.parentDepartment
+          ? department.parentDepartment.name
+          : null,
       };
       return res.status(200).json({
         success: true,
@@ -50,19 +67,31 @@ module.exports = {
   },
   createDepartment: async (req, res, next) => {
     try {
-      const { name } = req.body;
+      const { name, parentDepartmentId } = req.body;
+      console.log(name, parentDepartmentId);
       if (!name) {
-        throw new createError(400, "Department name is required");
+        throw createError(400, "Department name is required");
       }
       const findDepartment = await prisma.department.findFirst({
         where: { name, deletedAt: null },
       });
       if (findDepartment) {
-        throw new createError(409, "Department already exists");
+        throw createError(409, "Department already exists");
+      }
+      let parentDepartment = null;
+      if (parentDepartmentId) {
+        parentDepartment = await prisma.department.findUnique({
+          where: { id: parentDepartmentId },
+        });
+
+        if (!parentDepartment) {
+          throw createError(404, "Parent department not found");
+        }
       }
       await prisma.department.create({
         data: {
           name,
+          parentDepartmentId: parentDepartment ? parentDepartment.id : null,
         },
       });
       return res.status(200).json({
@@ -77,21 +106,36 @@ module.exports = {
   updateDepartment: async (req, res, next) => {
     try {
       const { id } = req.params;
-      const departmentId = parseInt(id);
-      const { name } = req.body;
+      const { name, parentDepartmentId } = req.body;
+      console.log(name, parentDepartmentId);
       if (!name) {
-        throw new createError(400, "Department name is required");
+        throw createError(400, "Department name is required");
       }
       const findDepartment = await prisma.department.findUnique({
-        where: { id: departmentId, deletedAt: null },
+        where: { id, deletedAt: null },
       });
       if (!findDepartment) {
-        throw new createError(404, "Department not found");
+        throw createError(404, "Department not found");
+      }
+      let parentDepartment = null;
+      if (parentDepartmentId) {
+        parentDepartment = await prisma.department.findUnique({
+          where: { id: parentDepartmentId },
+        });
+
+        if (!parentDepartment) {
+          throw createError(404, "Parent department not found");
+        }
+
+        if (parentDepartment.id === id) {
+          throw createError(400, "Department cannot be its own parent");
+        }
       }
       await prisma.department.update({
-        where: { id: departmentId },
+        where: { id },
         data: {
           name,
+          parentDepartmentId: parentDepartment ? parentDepartment.id : null,
         },
       });
       return res.status(200).json({
@@ -106,15 +150,14 @@ module.exports = {
   deleteDepartment: async (req, res, next) => {
     try {
       const { id } = req.params;
-      const departmentId = parseInt(id);
       const findDepartment = await prisma.department.findUnique({
-        where: { id: departmentId, deletedAt: null },
+        where: { id, deletedAt: null },
       });
       if (!findDepartment) {
-        throw new createError(404, "Department not found");
+        throw createError(404, "Department not found");
       }
       await prisma.department.update({
-        where: { id: departmentId },
+        where: { id },
         data: {
           deletedAt: new Date(),
         },

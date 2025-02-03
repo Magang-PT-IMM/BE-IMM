@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -14,197 +8,168 @@ datasource db {
 }
 
 model Auth {
-  id      String      @id @default(uuid())
-  email   String      @unique
-  password String     @db.VarChar(100)
-  reNewPassword Boolean @default(false)
-  deletedAt DateTime?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String      @id @default(uuid())
+  email       String      @unique
+  password    String      @db.VarChar(100)
+  reNewPassword Boolean  @default(false)
+  role        actorRole  
+  deletedAt   DateTime?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
 
-  user User[]
+  user        User[]
 
   @@map("auths")
 }
 
 model User {
-  id      String   @id @default(uuid())
-  authId  String    @unique
-  name    String   @db.VarChar(255)
-  departmentId Int
-  role    actorRole 
-  deletedAt DateTime?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String   @id @default(uuid())
+  authId      String   @unique
+  name        String   @db.VarChar(255)
+  departmentId String?
+  deletedAt   DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  auth Auth @relation(fields: [authId], references: [id])
-  department Department @relation(fields: [departmentId], references: [id])
-  progressTicket ProgressTicket[]
-  ticketUser TicketUser[]
-  permitUser PermitUser[]
+  auth        Auth      @relation(fields: [authId], references: [id])
+  department  Department? @relation(fields: [departmentId], references: [id])
+  userObligations UserObligation[]
+  notificationLogs NotificationLog[]
+  userProgressObligations UserProgressObligation[]
 
   @@map("users")
 }
 
-model Ticket {
-  id      String      @id @default(uuid())
-  ticketId String      @unique
-  permitName String     @db.VarChar(255)
-  permitCategoryId Int
-  institutionId Int
-  ownerDepartmentId Int
-  description String?
-  status   ticketStatus?
-  deletedAt DateTime?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  permitCategory PermitCategory @relation(fields: [permitCategoryId], references: [id])
-  department Department @relation(fields: [ownerDepartmentId], references: [id])
-  institution Institution @relation(fields: [institutionId], references: [id])
-  progressTicket ProgressTicket[]
-  ticketUser TicketUser[]
-
-  @@map("tickets")
-}
-
-model PermitCategory {
-  id      Int      @id @default(autoincrement())
-  name    String   @db.VarChar(255)
-  deletedAt DateTime?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  tickets Ticket[]
-  permits Permit[]
-
-  @@map("permitCategories")
-}
-
 model Department {
-  id      Int      @id @default(autoincrement())
-  name    String   @db.VarChar(255)
-  deletedAt DateTime?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                String       @id @default(uuid())
+  name              String
+  parentDepartmentId String?
+  parentDepartment  Department?  @relation("DepartmentHierarchy", fields: [parentDepartmentId], references: [id])
+  subDepartments    Department[] @relation("DepartmentHierarchy")
+  deletedAt         DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  tickets Ticket[]
-  users User[]
-  permits Permit[]
+  users       User[]
+  notificationLogs NotificationLog[]
 
   @@map("departments")
 }
 
 model Institution {
-  id      Int      @id @default(autoincrement())
-  name    String   @db.VarChar(255)
-  deletedAt DateTime?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String   @id @default(uuid())
+  name        String   @db.VarChar(255)
+  deletedAt   DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  tickets Ticket[]
-  permits Permit[]
+  obligations Obligation[]
+  notificationLogs NotificationLog[]
 
   @@map("institutions")
 }
 
-model ProgressTicket {
-  id      Int @id @default(autoincrement())
-  ticketId String     
-  status   ticketStatus
-  description String
+model Obligation {
+  id          String   @id @default(uuid())
+  name        String
+  type        obligationsType
+  category    obligationsCategory?
+  institutionId String?
+  description String?
+  dueDate     DateTime
+  status      obligationsStatus
+  latestUpdate DateTime?
+  deletedAt   DateTime?
+  renewal        Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  latestRemember DateTime?
+
+  institution Institution? @relation(fields: [institutionId], references: [id])
+
+  userObligations UserObligation[]
+  userProgressObligations UserProgressObligation[]
+  notificationLogs NotificationLog[]
+  @@map("obligations")
+}
+
+model UserObligation {
+  id          String   @id @default(uuid())
+  userId      String
+  obligationId String
+  deletedAt   DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user        User      @relation(fields: [userId], references: [id])
+  obligation  Obligation @relation(fields: [obligationId], references: [id])
+
+  @@map("user_obligations")
+}
+
+model UserProgressObligation {
+  id          String   @id @default(uuid())
   userId String
-  urlDocs String?
-  deletedAt DateTime?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  obligationId String
+  status      obligationsStatus
+  description String?
+  urlDocs     String?
+  deletedAt   DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  user User @relation(fields: [userId], references: [id])
-  ticket Ticket @relation(fields: [ticketId], references: [id])
+  user  User @relation(fields: [userId], references: [id])
+  obligation  Obligation @relation(fields: [obligationId], references: [id])
 
-  @@map("progressTickets")
+  @@map("user_progress_obligations")
 }
 
-model TicketUser {
-  id Int @id @default(autoincrement())
-  ticketId String
-  userId String
-  ticketRole String
-  deletedAt DateTime?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model NotificationLog {
+  id          String   @id @default(uuid())
+  userId      String?
+  departmentId String?
+  obligationId String?
+  institutionId String?
+  status      String
+  sentAt      DateTime @default(now())
+  createdAt   DateTime @default(now())
 
-  ticket Ticket @relation(fields: [ticketId], references: [id])
-  user User @relation(fields: [userId], references: [id])
+  user        User?      @relation(fields: [userId], references: [id])
+  department  Department? @relation(fields: [departmentId], references: [id])
+  obligation  Obligation? @relation(fields: [obligationId], references: [id])
+  institution Institution? @relation(fields: [institutionId], references: [id])
 
-  @@map("ticketUsers")
+  @@map("notification_logs")
 }
 
-model Permit {
-  id String      @id @default(uuid())
-  permitCategoryId Int
-  ownerDepartmentId Int
-  institutionId Int
-  permitId String
-  permitName String
-  permitNumber String
-  issuedDate DateTime
-  validityPeriod String
-  expireDate DateTime
-  description String
-  renewalRequirement String
-  notification String
-  urlDocument String
-  preparationPeriod String
-  status permitStatus
-  deletedAt DateTime?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  permitCategory PermitCategory @relation(fields: [permitCategoryId], references: [id])
-  department Department @relation(fields: [ownerDepartmentId], references: [id])
-  institution Institution @relation(fields: [institutionId], references: [id])
-  permitUser PermitUser[]
-
-  @@map("permits")
-}
-
-model PermitUser {
-  id Int @id @default(autoincrement())
-  permitId String
-  userId String
-  permitRole String
-  deletedAt DateTime?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  permit Permit @relation(fields: [permitId], references: [id])
-  user User @relation(fields: [userId], references: [id])
-
-  @@map("permitUsers")
-}
 
 
 
 enum actorRole {
-  USER
+  PIC
+  HEAD_DEPT
   ADMIN
-  EXTERNAL_RELATION
   MANAGEMENT
 }
 
-enum ticketStatus {
-  PREPARING
-  SUBMITING
-  VERIFICATION
-  FEEDBACK
-  APPROVAL
-  COMPLETE
-  CLOSED
+enum obligationsType {
+  REPORT
+  PAYMENT
+  OTHER
 }
 
-enum permitStatus {
-  VALID
-  EXPIRED
-  INVALID
+enum obligationsCategory {
+  MONTHLY
+  QUARTERLY
+  SEMESTER
+  YEARLY
+}
+
+enum obligationsStatus {
+  PREPARING
+  PROCESS
+  VERIFICATION
+  COMPLETE_ON_TIME
+  COMPLETE_OVERDUE
+  OVERDUE
 }
