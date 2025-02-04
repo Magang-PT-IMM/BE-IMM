@@ -34,7 +34,6 @@ model User {
   auth        Auth      @relation(fields: [authId], references: [id])
   department  Department? @relation(fields: [departmentId], references: [id])
   userObligations UserObligation[]
-  notificationLogs NotificationLog[]
   userProgressObligations UserProgressObligation[]
 
   @@map("users")
@@ -51,7 +50,6 @@ model Department {
   updatedAt   DateTime @updatedAt
 
   users       User[]
-  notificationLogs NotificationLog[]
 
   @@map("departments")
 }
@@ -64,7 +62,6 @@ model Institution {
   updatedAt   DateTime @updatedAt
 
   obligations Obligation[]
-  notificationLogs NotificationLog[]
 
   @@map("institutions")
 }
@@ -89,7 +86,6 @@ model Obligation {
 
   userObligations UserObligation[]
   userProgressObligations UserProgressObligation[]
-  notificationLogs NotificationLog[]
   @@map("obligations")
 }
 
@@ -122,24 +118,6 @@ model UserProgressObligation {
   obligation  Obligation @relation(fields: [obligationId], references: [id])
 
   @@map("user_progress_obligations")
-}
-
-model NotificationLog {
-  id          String   @id @default(uuid())
-  userId      String?
-  departmentId String?
-  obligationId String?
-  institutionId String?
-  status      String
-  sentAt      DateTime @default(now())
-  createdAt   DateTime @default(now())
-
-  user        User?      @relation(fields: [userId], references: [id])
-  department  Department? @relation(fields: [departmentId], references: [id])
-  obligation  Obligation? @relation(fields: [obligationId], references: [id])
-  institution Institution? @relation(fields: [institutionId], references: [id])
-
-  @@map("notification_logs")
 }
 
 
