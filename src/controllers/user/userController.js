@@ -104,7 +104,7 @@ module.exports = {
           id: user.id,
           email: user.auth.email,
           name: user.name,
-          department: user.department.name,
+          department: user.department ? user.department.name : null,
           role: user.role,
         };
       });

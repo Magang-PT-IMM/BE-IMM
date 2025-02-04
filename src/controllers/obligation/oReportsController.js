@@ -22,7 +22,7 @@ module.exports = {
         !description ||
         !dueDate ||
         !Array.isArray(users) ||
-        renewal ||
+        !renewal ||
         users.length === 0
       ) {
         throw createError(
@@ -31,74 +31,76 @@ module.exports = {
         );
       }
 
-      await prisma.$transaction(async (prisma) => {
-        const existingObligation = await prisma.obligation.findFirst({
-          where: { name, deletedAt: null },
-        });
-        if (existingObligation) {
-          throw createError(409, "Obligation Report already exists");
-        }
-        const findInstitution = await prisma.institution.findUnique({
-          where: { id: institutionId, deletedAt: null },
-        });
-        if (!findInstitution) {
-          throw createError(404, "Institution not found");
-        }
+      const existingObligation = await prisma.obligation.findFirst({
+        where: { name, deletedAt: null },
+      });
+      if (existingObligation) {
+        throw createError(409, "Obligation Report already exists");
+      }
+      const findInstitution = await prisma.institution.findUnique({
+        where: { id: institutionId, deletedAt: null },
+      });
+      if (!findInstitution) {
+        throw createError(404, "Institution not found");
+      }
 
-        const newObligation = await prisma.obligation.create({
-          data: {
-            name,
-            type: "REPORT",
-            category,
-            institutionId,
-            description,
-            dueDate: new Date(dueDate),
-            status: "PREPARING",
-            renewal: renewal || false,
-          },
-        });
+      await prisma.$transaction(
+        async (prisma) => {
+          const newObligation = await prisma.obligation.create({
+            data: {
+              name,
+              type: "REPORT",
+              category,
+              institutionId,
+              description,
+              dueDate: new Date(dueDate),
+              status: "PREPARING",
+              renewal: renewal || false,
+            },
+          });
 
-        const userObligationData = users.map((userId) => ({
-          userId,
-          obligationId: newObligation.id,
-        }));
-
-        await prisma.userObligation.createMany({
-          data: userObligationData,
-        });
-        const obligationUsers = await prisma.userObligation.findMany({
-          where: {
+          const userObligationData = users.map((userId) => ({
+            userId,
             obligationId: newObligation.id,
-          },
-          include: {
-            user: {
-              include: {
-                auth: { select: { email: true } },
+          }));
+
+          await prisma.userObligation.createMany({
+            data: userObligationData,
+          });
+          const obligationUsers = await prisma.userObligation.findMany({
+            where: {
+              obligationId: newObligation.id,
+            },
+            include: {
+              user: {
+                include: {
+                  auth: { select: { email: true } },
+                },
               },
             },
-          },
-        });
+          });
 
-        const toEmails = obligationUsers.map(
-          (obligationUser) => obligationUser.user.auth.email
-        );
+          const toEmails = obligationUsers.map(
+            (obligationUser) => obligationUser.user.auth.email
+          );
 
-        const ccEmails = await getCCEmails(users);
-
-        await sendEmailService.sendEmail("actionObligation", {
-          to: toEmails,
-          action: "Created",
-          obligationId: newObligation.id,
-          obligationName: newObligation.name,
-          obligationType: newObligation.type,
-          obligationCategory: newObligation.category,
-          institution: findInstitution.name,
-          description: newObligation.description,
-          dueDate: formatDate(newObligation.dueDate),
-          status: newObligation.status,
-          cc: ccEmails,
-        });
-      });
+          const ccEmails = await getCCEmails(users);
+          await sendEmailService.sendEmail("actionObligation", {
+            to: toEmails,
+            action: "Created",
+            obligationId: newObligation.id,
+            obligationName: newObligation.name,
+            obligationType: newObligation.type,
+            obligationCategory: newObligation.category,
+            institution: findInstitution.name,
+            description: newObligation.description,
+            dueDate: formatDate(newObligation.dueDate),
+            status: newObligation.status,
+            cc: ccEmails,
+          });
+        },
+        { timeout: 20000 }
+      );
       return res.status(201).json({
         success: true,
         message: "Obligation Report created successfully",
