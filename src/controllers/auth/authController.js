@@ -108,68 +108,6 @@ module.exports = {
 
   reNewPassword: async (req, res, next) => {
     try {
-      const { currentPassword, newPassword } = req.body;
-      const { id } = res.user;
-
-      if (!currentPassword || !newPassword) {
-        throw createError(
-          400,
-          "Current password and new password are required"
-        );
-      }
-
-      if (currentPassword === newPassword) {
-        throw createError(
-          400,
-          "Current password and new password cannot be the same"
-        );
-      }
-
-      const findUser = await prisma.user.findUnique({
-        where: { id, deletedAt: null },
-      });
-
-      if (!findUser) {
-        throw createError(404, "User not found");
-      }
-
-      const authUser = await prisma.auth.findUnique({
-        where: { id: findUser.authId, deletedAt: null },
-      });
-
-      if (!authUser) {
-        throw createError(404, "User not found");
-      }
-
-      const isMatch = await comparePassword(currentPassword, authUser.password);
-
-      if (!isMatch) {
-        throw createError(401, "Your current password is incorrect");
-      }
-
-      const hashedPassword = await hashPassword(newPassword);
-
-      await prisma.$transaction(async (prisma) => {
-        await prisma.auth.update({
-          where: { id: findUser.authId },
-          data: {
-            password: hashedPassword,
-            reNewPassword: true,
-          },
-        });
-      });
-
-      return res.status(200).json({
-        success: true,
-        message: "Password updated successfully",
-      });
-    } catch (error) {
-      console.log(error);
-      next(error);
-    }
-  },
-  changePassword: async (req, res, next) => {
-    try {
       const { newPassword } = req.body;
       const { id } = res.user;
 
@@ -196,7 +134,65 @@ module.exports = {
         throw createError(404, "User not found");
       }
 
-      const isMatch = await comparePassword(newPassword, authUser.password);
+      const hashedPassword = await hashPassword(newPassword);
+
+      await prisma.$transaction(async (prisma) => {
+        await prisma.auth.update({
+          where: { id: findUser.authId },
+          data: {
+            password: hashedPassword,
+            reNewPassword: true,
+          },
+        });
+      });
+
+      return res.status(200).json({
+        success: true,
+        message: "Password updated successfully",
+      });
+    } catch (error) {
+      console.log(error);
+      next(error);
+    }
+  },
+  changePassword: async (req, res, next) => {
+    try {
+      const { currentPassword, newPassword } = req.body;
+      const { id } = res.user;
+
+      if (!currentPassword || !newPassword) {
+        throw createError(
+          400,
+          "Current password and new password are required"
+        );
+      }
+
+      const findUser = await prisma.user.findUnique({
+        where: { id, deletedAt: null },
+      });
+
+      if (!findUser) {
+        throw createError(404, "User not found");
+      }
+
+      const authUser = await prisma.auth.findUnique({
+        where: { id: findUser.authId, deletedAt: null },
+      });
+
+      if (!authUser) {
+        throw createError(404, "User not found");
+      }
+
+      const isSame = await comparePassword(newPassword, authUser.password);
+
+      if (isSame) {
+        throw createError(
+          400,
+          "Current password and new password cannot be the same"
+        );
+      }
+
+      const isMatch = await comparePassword(currentPassword, authUser.password);
 
       if (isMatch) {
         throw createError(

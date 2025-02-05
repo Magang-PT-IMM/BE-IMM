@@ -105,7 +105,7 @@ module.exports = {
           email: user.auth.email,
           name: user.name,
           department: user.department ? user.department.name : null,
-          role: user.role,
+          role: user.auth.role,
         };
       });
       return res.status(200).json({ success: true, data: data });

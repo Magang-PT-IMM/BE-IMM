@@ -76,11 +76,11 @@ model Obligation {
   dueDate     DateTime
   status      obligationsStatus
   latestUpdate DateTime?
-  deletedAt   DateTime?
   renewal        Boolean  @default(false)
+  latestRemember DateTime?
+  deletedAt   DateTime?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  latestRemember DateTime?
 
   institution Institution? @relation(fields: [institutionId], references: [id])
 
