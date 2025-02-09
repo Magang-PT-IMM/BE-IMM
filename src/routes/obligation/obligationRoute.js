@@ -62,9 +62,19 @@ router.put(
   obligation.undeletedObligation
 );
 
-router.get("/get-template", obligationDocs.downloadTemplate);
+router.get(
+  "/get-template",
+  authMiddleware,
+  roleMiddleware("ADMIN"),
+  obligationDocs.downloadTemplate
+);
 
-router.get("/export-obligation", obligationDocs.exportObligations);
+router.get(
+  "/export-obligation",
+  authMiddleware,
+  roleMiddleware("ADMIN"),
+  obligationDocs.exportObligations
+);
 
 router.post(
   "/upload-obligation",

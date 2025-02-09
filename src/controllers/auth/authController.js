@@ -192,15 +192,6 @@ module.exports = {
         );
       }
 
-      const isMatch = await comparePassword(currentPassword, authUser.password);
-
-      if (isMatch) {
-        throw createError(
-          400,
-          "Current password and new password cannot be the same"
-        );
-      }
-
       const hashedPassword = await hashPassword(newPassword);
 
       await prisma.auth.update({
