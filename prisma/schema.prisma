@@ -78,6 +78,7 @@ model Obligation {
   latestUpdate DateTime?
   renewal        Boolean  @default(false)
   latestRemember DateTime?
+  itsOverdue     Boolean  @default(false)
   deletedAt   DateTime?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -121,8 +122,6 @@ model UserProgressObligation {
 }
 
 
-
-
 enum actorRole {
   PIC
   HEAD_DEPT
@@ -144,10 +143,7 @@ enum obligationsCategory {
 }
 
 enum obligationsStatus {
-  PREPARING
   PROCESS
   VERIFICATION
-  COMPLETE_ON_TIME
-  COMPLETE_OVERDUE
-  OVERDUE
+  COMPLETE
 }

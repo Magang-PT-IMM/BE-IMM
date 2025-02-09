@@ -1,6 +1,6 @@
 node_modules
 # Keep environment variables out of version control
 .env
-prisma/migrations/
-prisma/seed/
-iremember-449706-dc1f349c8bf3.json
+Dockerfile
+compose.yaml
+prisma/seed

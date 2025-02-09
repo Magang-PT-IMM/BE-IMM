@@ -1,10 +1,10 @@
 const cron = require("node-cron");
-// const prisma = require("../application/database");
-// const sendEmailService = require("../utils/sendEmail");
-// const { formatDate } = require("../utils/dateFormat");
-// const { getCCEmails } = require("../utils/ccEmails");
-// const fs = require("fs").promises;
-// const path = require("path");
+const prisma = require("../application/database");
+const sendEmailService = require("../utils/sendEmail");
+const { formatDate } = require("../utils/dateFormat");
+const { getCCEmails } = require("../utils/ccEmails");
+const fs = require("fs").promises;
+const path = require("path");
 
 // async function sendObligationReminders() {
 //   try {
@@ -13,13 +13,13 @@ const cron = require("node-cron");
 //     const dayOfMonth = today.getDate();
 
 //     let obligations;
-//     if (dayOfMonth === 4 || dayOfMonth === 10) {
+//     if (dayOfMonth === 5 || dayOfMonth === 10) {
 //       obligations = await prisma.obligation.findMany({
 //         where: {
 //           category: "MONTHLY",
 //           deletedAt: null,
 //           status: {
-//             notIn: ["OVERDUE", "COMPLETE_ON_TIME", "COMPLETE_OVERDUE"],
+//             notIn: ["COMPLETE"],
 //           },
 //         },
 //         include: {
@@ -37,7 +37,7 @@ const cron = require("node-cron");
 //           category: { not: "MONTHLY" },
 //           deletedAt: null,
 //           status: {
-//             notIn: ["OVERDUE", "COMPLETE_ON_TIME", "COMPLETE_OVERDUE"],
+//             notIn: ["COMPLETE"],
 //           },
 //         },
 //         include: {
@@ -63,6 +63,8 @@ const cron = require("node-cron");
 //       );
 //       const ccEmails = await getCCEmails(userIds);
 
+//       const overdueStatus = obligation.itsOverdue ? "Overdue" : "On Time";
+
 //       if (toEmails.length > 0) {
 //         await sendEmailService.sendEmail("rememberObligation", {
 //           to: toEmails,
@@ -73,7 +75,7 @@ const cron = require("node-cron");
 //           institution: obligation.institution.name,
 //           description: obligation.description || "No description provided",
 //           dueDate: obligation.dueDate ? formatDate(obligation.dueDate) : null,
-//           status: obligation.status,
+//           status: `${obligation.status} : ${overdueStatus}`,
 //           latestUpdate: obligation.latestUpdate
 //             ? formatDate(obligation.latestUpdate)
 //             : null,
@@ -94,10 +96,10 @@ const cron = require("node-cron");
 //     const updatedObligations = await prisma.obligation.updateMany({
 //       where: {
 //         dueDate: { lt: today },
-//         status: { not: "OVERDUE" },
+//         itsOverdue: false,
 //         deletedAt: null,
 //       },
-//       data: { status: "OVERDUE" },
+//       data: { itsOverdue: true, latestRemember: new Date() },
 //     });
 
 //     console.log(`Updated ${updatedObligations.count} obligations to OVERDUE.`);
@@ -106,7 +108,7 @@ const cron = require("node-cron");
 //       const overdueObligations = await prisma.obligation.findMany({
 //         where: {
 //           dueDate: { lt: today },
-//           status: "OVERDUE",
+//           itsOverdue: true,
 //           deletedAt: null,
 //         },
 //         include: {
@@ -122,6 +124,8 @@ const cron = require("node-cron");
 //         );
 //         const ccEmails = await getCCEmails(userIds);
 
+//         const overdueStatus = obligation.itsOverdue ? "Overdue" : "On Time";
+
 //         if (toEmails.length > 0) {
 //           await sendEmailService.sendEmail("rememberObligation", {
 //             to: toEmails,
@@ -133,7 +137,7 @@ const cron = require("node-cron");
 //             institution: obligation.institution.name,
 //             description: obligation.description || "No description provided",
 //             dueDate: obligation.dueDate ? formatDate(obligation.dueDate) : null,
-//             status: obligation.status,
+//             status: `${obligation.status} : ${overdueStatus}`,
 //             latestUpdate: obligation.latestUpdate
 //               ? formatDate(obligation.latestUpdate)
 //               : null,
@@ -155,14 +159,10 @@ const cron = require("node-cron");
 // async function sendOverdueReminders() {
 //   try {
 //     console.log("Sending overdue reminders...");
-//     const today = new Date();
-//     const twoWeeksAgo = new Date(today.getTime() - 14 * 24 * 60 * 60 * 1000);
 
 //     const overdueObligations = await prisma.obligation.findMany({
 //       where: {
-//         status: "OVERDUE",
-//         dueDate: { lte: twoWeeksAgo },
-//         OR: [{ latestRemember: null }, { latestRemember: { lt: twoWeeksAgo } }],
+//         itsOverdue: true,
 //         deletedAt: null,
 //       },
 //       include: {
@@ -172,34 +172,55 @@ const cron = require("node-cron");
 //     });
 
 //     for (const obligation of overdueObligations) {
-//       const usersId = obligation.userObligations.map((uo) => uo.user.id);
-//       const emails = obligation.userObligations.map((uo) => uo.user.auth.email);
-//       const ccEmails = await getCCEmails(usersId);
+//       const now = new Date();
+//       const twoWeeksAgo = new Date();
+//       twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
 
-//       if (emails.length > 0) {
-//         await sendEmailService.sendEmail("rememberObligation", {
-//           to: emails,
-//           usersId: usersId,
-//           obligationId: obligation.id,
-//           obligationName: obligation.name,
-//           obligationType: obligation.type,
-//           obligationCategory: obligation.category,
-//           institution: obligation.institution.name,
-//           description: obligation.description || "No description provided",
-//           dueDate: obligation.dueDate ? formatDate(obligation.dueDate) : null,
-//           status: obligation.status,
-//           latestUpdate: obligation.latestUpdate
-//             ? formatDate(obligation.latestUpdate)
-//             : null,
-//           cc: ccEmails,
-//         });
+//       console.log("Current time:", now);
+//       console.log("Two Weeks ago:", twoWeeksAgo);
+//       console.log("Obligation due date:", obligation.dueDate);
 
-//         console.log(`Overdue reminder sent to: ${emails.join(", ")}`);
+//       if (
+//         obligation.dueDate <= now &&
+//         (obligation.latestRemember === null ||
+//           obligation.latestRemember < twoWeeksAgo)
+//       ) {
+//         const usersId = obligation.userObligations.map((uo) => uo.user.id);
+//         const emails = obligation.userObligations.map(
+//           (uo) => uo.user.auth.email
+//         );
+//         const ccEmails = await getCCEmails(usersId);
 
-//         await prisma.obligation.update({
-//           where: { id: obligation.id },
-//           data: { latestRemember: new Date() },
-//         });
+//         console.log("Sending email to:", emails);
+//         console.log("CC:", ccEmails);
+
+//         const overdueStatus = obligation.itsOverdue ? "Overdue" : "On Time";
+
+//         if (emails.length > 0) {
+//           await sendEmailService.sendEmail("rememberObligation", {
+//             to: emails,
+//             usersId: usersId,
+//             obligationId: obligation.id,
+//             obligationName: obligation.name,
+//             obligationType: obligation.type,
+//             obligationCategory: obligation.category,
+//             institution: obligation.institution.name,
+//             description: obligation.description || "No description provided",
+//             dueDate: obligation.dueDate ? formatDate(obligation.dueDate) : null,
+//             status: `${obligation.status} : ${overdueStatus}`,
+//             latestUpdate: obligation.latestUpdate
+//               ? formatDate(obligation.latestUpdate)
+//               : null,
+//             cc: ccEmails,
+//           });
+
+//           console.log(`Overdue reminder sent to: ${emails.join(", ")}`);
+
+//           await prisma.obligation.update({
+//             where: { id: obligation.id },
+//             data: { latestRemember: new Date() },
+//           });
+//         }
 //       }
 //     }
 //   } catch (error) {
@@ -235,11 +256,11 @@ const cron = require("node-cron");
 //     console.error("Error during cleanup:", error);
 //   }
 // }
-// cron.schedule("* * 20 * *", cleanUpFiles);
+// cron.schedule("0 0 20 * *", cleanUpFiles);
 
-// cron.schedule("*/2 * * * *", sendObligationReminders);
-// cron.schedule("*/3 * * * *", sendOverdueReminders);
-// cron.schedule("*/5 * * * *", updateOverdueStatus);
+// cron.schedule("0 */5 * * *", sendObligationReminders);
+// cron.schedule("*/1 * * * *", sendOverdueReminders);
+// cron.schedule("*/2 * * * *", updateOverdueStatus);
 
 cron.schedule("* * * * *", () => {
   console.log(`Cron job running at ${new Date().toISOString()}`);

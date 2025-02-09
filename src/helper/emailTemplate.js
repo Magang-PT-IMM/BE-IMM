@@ -295,7 +295,7 @@ const emailTemplates = {
             <!-- Email Content -->
             <tr>
               <td style="padding: 20px; color: #637381; font-size: 14px;">
-                <h2 style="margin: 0 0 16px; color: #000;">Your ${obligationCategory} ${obligationType} has been ${action}</h2>
+                <h2 style="margin: 0 0 16px; color: #000;">${obligationCategory} ${obligationType} has been ${action}</h2>
                 <p style="margin: 0 0 12px; color: #637381; font-size: 12px;">
                   Berikut adalah detail obligasi Anda:
                 </p>
@@ -333,7 +333,7 @@ const emailTemplates = {
                   Terima kasih atas perhatian Anda terhadap obligasi ini.
                 </p>
                 <p style="margin: 0 0 16px; font-size: 12px; color: #637381;">
-                  Silakan klik tombol di bawah ini untuk melihat detail obligasi Anda.
+                  Silakan klik tombol di bawah ini untuk melihat detail obligasi.
                 </p>
                 <!-- Button -->
                 <p style="text-align: center; margin: 0 0 20px;">

@@ -17,7 +17,7 @@ module.exports = {
       const data = {
         email: user.auth.email,
         name: user.name,
-        department: user.department.name,
+        department: user.department ? user.department.name : null,
       };
       return res.status(200).json({ success: true, data: data });
     } catch (error) {
@@ -131,7 +131,7 @@ module.exports = {
           id: user.id,
           email: user.auth.email,
           name: user.name,
-          department: user.department.name,
+          department: user.department ? user.department.name : null,
           role: user.role,
         };
       });
@@ -195,7 +195,7 @@ module.exports = {
       const data = {
         email: user.auth.email,
         name: user.name,
-        department: user.department.name,
+        department: user.department ? user.department.name : null,
       };
       return res.status(200).json({ success: true, data: data });
     } catch (error) {

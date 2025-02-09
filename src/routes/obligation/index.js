@@ -1,11 +1,9 @@
 const express = require("express");
-const oReportsRoute = require("./oReportsRoute");
 const userProgressObligationRoute = require("./userProgressObligationRoute");
-const oPaymentsRoute = require("./oPaymentsRoute");
+const obligationRoute = require("./obligationRoute");
 const router = express.Router();
 
-router.use(oReportsRoute);
 router.use(userProgressObligationRoute);
-router.use(oPaymentsRoute);
+router.use(obligationRoute);
 
 module.exports = router;

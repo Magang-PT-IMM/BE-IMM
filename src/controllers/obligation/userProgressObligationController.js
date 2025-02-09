@@ -6,6 +6,7 @@ const { formatDate } = require("../../utils/dateFormat");
 const { addMonths, setDate } = require("date-fns");
 const { getCCEmails } = require("../../utils/ccEmails");
 const { uploadFile } = require("../../utils/uploadFiles");
+const { GOOGLE_FOLDER_ID } = require("../../config/index");
 
 module.exports = {
   createUserProgressObligation: async (req, res, next) => {
@@ -17,6 +18,7 @@ module.exports = {
       if (!id || !obligationId) {
         throw createError(400, "User ID and Obligation ID are required");
       }
+
       const user = await prisma.user.findUnique({ where: { id } });
       if (!user) throw createError(404, "User not found");
 
@@ -27,233 +29,163 @@ module.exports = {
 
       let fileUrl = "";
       if (req.file) {
-        const folderId = "1bCkA-TP09QYiDOrkjRJU0d-kjK8_uo3P";
         fileUrl = await uploadFile(
           req.file.path,
           req.file.originalname,
-          folderId
+          GOOGLE_FOLDER_ID
         );
-
         fs.unlinkSync(req.file.path);
+      }
+
+      if (status !== "PROCESS" && status !== "COMPLETE") {
+        throw createError(
+          400,
+          "Invalid status. Only 'PROCESS' and 'COMPLETE' are allowed."
+        );
       }
 
       await prisma.userProgressObligation.create({
         data: {
           userId: id,
           obligationId,
-          status: status || "PREPARING",
+          status,
           description: description || "",
           urlDocs: fileUrl,
         },
       });
 
-      const totalUsers = await prisma.userObligation.count({
-        where: { obligationId },
-      });
-      const verifiedUsers = await prisma.userProgressObligation.count({
-        where: { obligationId, status: "VERIFICATION" },
-      });
       await prisma.$transaction(async (prisma) => {
-        if (role === "PIC" || role === "HEAD_DEPT") {
-          if (status === "VERIFICATION") {
-            if (verifiedUsers === totalUsers) {
-              await prisma.obligation.update({
-                where: { id: obligationId },
-                data: {
-                  status: "VERIFICATION",
-                  latestUpdate: new Date(),
-                  updatedAt: new Date(),
-                },
-              });
-            } else {
-              await prisma.obligation.update({
-                where: { id: obligationId },
-                data: {
-                  status: obligation.status,
-                  latestUpdate: new Date(),
-                  updatedAt: new Date(),
-                },
-              });
-            }
-          } else {
-            await prisma.obligation.update({
-              where: { id: obligationId },
-              data: {
-                status: status,
-                latestUpdate: new Date(),
-                updatedAt: new Date(),
+        if (role === "PIC") {
+          const totalUsers = await prisma.userObligation.count({
+            where: { obligationId },
+          });
+
+          const completedUsers = await prisma.userProgressObligation.count({
+            where: { obligationId, status: "COMPLETE" },
+          });
+
+          if (completedUsers === totalUsers) {
+            console.log(
+              "All users have completed the obligation. Sending email to admin..."
+            );
+
+            const adminUsers = await prisma.user.findMany({
+              where: { role: "ADMIN" },
+              select: { auth: { select: { email: true } } },
+            });
+
+            const adminEmails = adminUsers.map((admin) => admin.auth.email);
+
+            const obligationUsers = await prisma.userObligation.findMany({
+              where: { obligationId },
+              include: {
+                user: { include: { auth: { select: { email: true } } } },
               },
             });
+
+            const ccEmails = obligationUsers.map(
+              (obligationUser) => obligationUser.user.auth.email
+            );
+
+            if (adminEmails.length > 0) {
+              await sendEmailService.sendEmail("actionObligation", {
+                to: adminEmails,
+                action: "Completed",
+                obligationId,
+                obligationName: obligation.name,
+                obligationType: obligation.type,
+                obligationCategory: obligation.category,
+                institution: obligation.institutionId,
+                description: obligation.description,
+                dueDate: formatDate(obligation.dueDate),
+                status: "COMPLETE",
+                cc: ccEmails,
+              });
+            }
           }
-        } else if (role === "ADMIN") {
-          if (status === "COMPLETE_ON_TIME" || status === "COMPLETE_OVERDUE") {
+        }
+        if (role === "ADMIN") {
+          if (status === "COMPLETE") {
             await prisma.obligation.update({
               where: { id: obligationId },
               data: {
-                status,
+                status: "COMPLETE",
                 latestUpdate: new Date(),
                 updatedAt: new Date(),
               },
             });
+
             if (obligation.renewal) {
-              if (obligation.category === "MONTHLY") {
-                const nextDueDate = setDate(
-                  addMonths(obligation.dueDate, 1),
-                  10
-                );
+              const nextDueDate =
+                obligation.category === "MONTHLY"
+                  ? setDate(addMonths(obligation.dueDate, 1), 10)
+                  : new Date(
+                      obligation.dueDate.setFullYear(
+                        obligation.dueDate.getFullYear() + 1
+                      )
+                    );
 
-                const newObligation = await prisma.obligation.create({
-                  data: {
-                    name: obligation.name,
-                    type: obligation.type,
-                    category: obligation.category,
-                    institutionId: obligation.institutionId,
-                    description: obligation.description,
-                    dueDate: nextDueDate,
-                    status: "PREPARING",
-                    renewal: obligation.renewal,
-                  },
-                });
-                const userObligations = await prisma.userObligation.findMany({
-                  where: { obligationId },
-                });
+              const newObligation = await prisma.obligation.create({
+                data: {
+                  name: obligation.name,
+                  type: obligation.type,
+                  category: obligation.category,
+                  institutionId: obligation.institutionId,
+                  description: obligation.description,
+                  dueDate: nextDueDate,
+                  status: "PROCESS",
+                  renewal: obligation.renewal,
+                },
+              });
 
-                const newUserObligations = userObligations.map((uo) => ({
-                  userId: uo.userId,
-                  obligationId: newObligation.id,
-                }));
+              const userObligations = await prisma.userObligation.findMany({
+                where: { obligationId },
+              });
+              const newUserObligations = userObligations.map((uo) => ({
+                userId: uo.userId,
+                obligationId: newObligation.id,
+              }));
+              await prisma.userObligation.createMany({
+                data: newUserObligations,
+              });
 
-                await prisma.userObligation.createMany({
-                  data: newUserObligations,
-                });
+              const obligationUsers = await prisma.userObligation.findMany({
+                where: { obligationId: newObligation.id },
+                include: {
+                  user: { include: { auth: { select: { email: true } } } },
+                },
+              });
 
-                const obligationUsers = await prisma.userObligation.findMany({
-                  where: {
-                    obligationId: newObligation.id,
-                  },
-                  include: {
-                    user: {
-                      include: {
-                        auth: { select: { email: true } },
-                      },
-                    },
-                  },
-                });
+              const toEmails = obligationUsers.map(
+                (obligationUser) => obligationUser.user.auth.email
+              );
+              const users = obligationUsers.map(
+                (obligationUser) => obligationUser.user.id
+              );
+              const ccEmails = await getCCEmails(users);
 
-                const toEmails = obligationUsers.map(
-                  (obligationUser) => obligationUser.user.auth.email
-                );
+              const findInstitution = await prisma.institution.findUnique({
+                where: { id: obligation.institutionId, deletedAt: null },
+              });
 
-                const users = obligationUsers.map(
-                  (obligationUser) => obligationUser.user.id
-                );
-
-                const ccEmails = await getCCEmails(users);
-
-                const findInstitution = await prisma.institution.findUnique({
-                  where: { id: obligation.institutionId, deletedAt: null },
-                });
-                if (!findInstitution) {
-                  throw createError(404, "Institution not found");
-                }
-
-                await sendEmailService.sendEmail("actionObligation", {
-                  to: toEmails,
-                  action: "Created",
-                  obligationId: newObligation.id,
-                  obligationName: newObligation.name,
-                  obligationType: newObligation.type,
-                  obligationCategory: newObligation.category,
-                  institution: findInstitution.name,
-                  description: newObligation.description,
-                  dueDate: formatDate(newObligation.dueDate),
-                  status: newObligation.status,
-                  cc: ccEmails,
-                });
-              } else {
-                const nextDueDate = new Date(obligation.dueDate);
-                nextDueDate.setFullYear(nextDueDate.getFullYear() + 1);
-                nextDueDate.setDate(nextDueDate.getDate() + 30);
-
-                const newObligation = await prisma.obligation.create({
-                  data: {
-                    name: obligation.name,
-                    type: obligation.type,
-                    category: obligation.category,
-                    institutionId: obligation.institutionId,
-                    description: obligation.description,
-                    dueDate: nextDueDate,
-                    status: "PREPARING",
-                    renewal: obligation.renewal,
-                  },
-                });
-                const userObligations = await prisma.userObligation.findMany({
-                  where: { obligationId },
-                });
-
-                const newUserObligations = userObligations.map((uo) => ({
-                  userId: uo.userId,
-                  obligationId: newObligation.id,
-                }));
-
-                await prisma.userObligation.createMany({
-                  data: newUserObligations,
-                });
-
-                const obligationUsers = await prisma.userObligation.findMany({
-                  where: {
-                    obligationId: newObligation.id,
-                  },
-                  include: {
-                    user: {
-                      include: {
-                        auth: { select: { email: true } },
-                      },
-                    },
-                  },
-                });
-
-                const toEmails = obligationUsers.map(
-                  (obligationUser) => obligationUser.user.auth.email
-                );
-
-                const users = obligationUsers.map(
-                  (obligationUser) => obligationUser.user.id
-                );
-
-                const ccEmails = await getCCEmails(users);
-
-                const findInstitution = await prisma.institution.findUnique({
-                  where: { id: obligation.institutionId, deletedAt: null },
-                });
-                if (!findInstitution) {
-                  throw createError(404, "Institution not found");
-                }
-
-                await sendEmailService.sendEmail("actionObligation", {
-                  to: toEmails,
-                  action: "Created",
-                  obligationId: newObligation.id,
-                  obligationName: newObligation.name,
-                  obligationType: newObligation.type,
-                  obligationCategory: newObligation.category,
-                  institution: findInstitution.name,
-                  description: newObligation.description,
-                  dueDate: formatDate(newObligation.dueDate),
-                  status: newObligation.status,
-                  cc: ccEmails,
-                });
+              if (!findInstitution) {
+                throw createError(404, "Institution not found");
               }
+
+              await sendEmailService.sendEmail("actionObligation", {
+                to: toEmails,
+                action: "Created",
+                obligationId: newObligation.id,
+                obligationName: newObligation.name,
+                obligationType: newObligation.type,
+                obligationCategory: newObligation.category,
+                institution: findInstitution.name,
+                description: newObligation.description,
+                dueDate: formatDate(newObligation.dueDate),
+                status: newObligation.status,
+                cc: ccEmails,
+              });
             }
-          } else {
-            await prisma.obligation.update({
-              where: { id: obligationId },
-              data: {
-                status,
-                latestUpdate: new Date(),
-                updatedAt: new Date(),
-              },
-            });
           }
         }
       });
