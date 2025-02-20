@@ -20,7 +20,7 @@ const emailTemplates = {
             <!-- Header Image -->
             <tr>
               <td>
-                <img src="https://ik.imagekit.io/vyck38py3/Group%2018.png?updatedAt=1737896281354"
+                <img src="https://ik.imagekit.io/vyck38py3/Group%2018.png?updatedAt=1740014500541"
                      style="width: 100%; height: auto; display: block;">
               </td>
             </tr>
@@ -31,7 +31,7 @@ const emailTemplates = {
             <!-- Email Content -->
             <tr>
               <td style="padding: 20px; color: #637381; font-size: 14px;">
-                <h2 style="margin: 0 0 16px; color: #000;">Akun iRemember</h2>
+                <h2 style="margin: 0 0 16px; color: #000; font-size: 14px;">Akun iRemember</h2>
                 <p style="margin: 0 0 12px; color: #637381; font-size: 12px;">Dear ${name},</p>
                 <p style="margin: 0 0 12px; color: #637381; font-size: 12px;">Kami telah membuatkan akun untuk Anda di aplikasi iRemember. Berikut detail akun Anda :</p>
                 <table style="width: 100%; margin: 16px 0; border-spacing: 0;">
@@ -91,7 +91,7 @@ const emailTemplates = {
             <!-- Header Image -->
             <tr>
               <td>
-                <img src="https://ik.imagekit.io/vyck38py3/Group%2018.png?updatedAt=1737896281354"
+                <img src="https://ik.imagekit.io/vyck38py3/Group%2018.png?updatedAt=1740014500541"
                      style="width: 100%; height: auto; display: block;">
               </td>
             </tr>
@@ -102,7 +102,7 @@ const emailTemplates = {
             <!-- Email Content -->
             <tr>
               <td style="padding: 20px; color: #637381; font-size: 14px;">
-                <h2 style="margin: 0 0 16px; color: #000; font-size:16px">Reset Password Akun iRemember</h2>
+                <h2 style="margin: 0 0 16px; color: #000; font-size: 14px;">Reset Password Akun iRemember</h2>
                 <p style="margin: 0 0 12px; color: #637381; font-size: 12px;">Dear ${name},</p>
                 <p style="margin: 0 0 12px; color: #637381; font-size: 12px;">Kami telah mereset password akun anda di aplikasi iRemember. Berikut detail akun Anda :</p>
                 <table style="width: 100%; margin: 16px 0; border-spacing: 0;">
@@ -176,7 +176,7 @@ const emailTemplates = {
             <!-- Header Image -->
             <tr>
               <td>
-                <img src="https://ik.imagekit.io/vyck38py3/Group%2018s.png"
+                <img src="https://ik.imagekit.io/vyck38py3/Group%2018.png?updatedAt=1740014500541"
                      style="width: 100%; height: 100px; object-fit: contain; display: block;">
               </td>
             </tr>
@@ -187,7 +187,7 @@ const emailTemplates = {
             <!-- Email Content -->
             <tr>
               <td style="padding: 20px; color: #637381; font-size: 14px;">
-                <h2 style="margin: 0 0 16px; color: #000;">Remember: Your ${obligationCategory} ${obligationType} is in ${status}</h2>
+                <h2 style="margin: 0 0 16px; color: #000; font-size: 14px;">Remember: Your ${obligationCategory} ${obligationType} is in ${status}</h2>
                 <p style="margin: 0 0 12px; color: #637381; font-size: 12px;">
                   Berikut adalah detail obligasi Anda:
                 </p>
@@ -286,7 +286,7 @@ const emailTemplates = {
             <!-- Header Image -->
             <tr>
               <td>
-                <img src="https://ik.imagekit.io/vyck38py3/Group%2018s.png"
+                <img src="https://ik.imagekit.io/vyck38py3/Group%2018.png?updatedAt=1740014500541"
                      style="width: 100%; height: 100px; object-fit: contain; display: block;">
               </td>
             </tr>
@@ -297,7 +297,7 @@ const emailTemplates = {
             <!-- Email Content -->
             <tr>
               <td style="padding: 20px; color: #637381; font-size: 14px;">
-                <h2 style="margin: 0 0 16px; color: #000;">${obligationCategory} ${obligationType} has been ${action}</h2>
+                <h2 style="margin: 0 0 16px; color: #000; font-size: 14px;">${obligationCategory} ${obligationType} has been ${action}</h2>
                 <p style="margin: 0 0 12px; color: #637381; font-size: 12px;">
                   Berikut adalah detail obligasi Anda:
                 </p>
