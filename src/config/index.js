@@ -22,4 +22,5 @@ module.exports = {
   GOOGLE_CLIENT_CERT_URL: process.env.GOOGLE_CLIENT_CERT_URL,
   GOOGLE_UNIVERSE_DOMAIN: process.env.GOOGLE_UNIVERSE_DOMAIN,
   GOOGLE_FOLDER_ID: process.env.GOOGLE_FOLDER_ID,
+  FE_URL: process.env.FE_URL,
 };

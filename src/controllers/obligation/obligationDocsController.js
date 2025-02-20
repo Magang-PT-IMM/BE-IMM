@@ -3,6 +3,7 @@ const prisma = require("../../application/database");
 const { createError } = require("../../models/errorResponse");
 const fs = require("fs");
 const path = require("path");
+const { addMonths, setDate } = require("date-fns");
 
 module.exports = {
   downloadTemplate: async (req, res, next) => {
@@ -27,6 +28,7 @@ module.exports = {
         { header: "Renewal (true/false)", key: "renewal", width: 30 },
         { header: "Institution Name", key: "institution", width: 25 },
         { header: "Description", key: "description", width: 30 },
+        { header: "Status", key: "status", width: 30 },
         { header: "Due Date (YYYY-MM-DD)", key: "dueDate", width: 30 },
         { header: "User Names", key: "users", width: 50 },
       ];
@@ -92,6 +94,7 @@ module.exports = {
         { header: "Renewal (true/false)", key: "renewal", width: 30 },
         { header: "Institution Name", key: "institution", width: 25 },
         { header: "Description", key: "description", width: 30 },
+        { header: "Status", key: "status", width: 30 },
         { header: "Due Date (YYYY-MM-DD)", key: "dueDate", width: 30 },
         { header: "User Names", key: "users", width: 50 },
       ];
@@ -112,6 +115,7 @@ module.exports = {
           renewal: obligation.renewal ? "true" : "false",
           institution: obligation.institution.name,
           description: obligation.description,
+          status: obligation.status,
           dueDate: new Date(obligation.dueDate).toISOString().split("T")[0],
           users: obligation.userObligations
             .map((uo) => uo.user.name)
@@ -151,6 +155,25 @@ module.exports = {
       const worksheet = workbook.getWorksheet(1);
 
       let obligationsToInsert = [];
+      let skippedRows = [];
+
+      const currentYear = new Date().getFullYear();
+      const monthNames = [
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December",
+      ];
+      const yearPattern = /\b\d{4}\b/; // Pola mendeteksi tahun dalam nama
+      const monthPattern = new RegExp(`\\b(${monthNames.join("|")})\\b`, "i"); // Pola mendeteksi bulan dalam nama
 
       for (let rowNumber = 2; rowNumber <= worksheet.rowCount; rowNumber++) {
         const row = worksheet.getRow(rowNumber);
@@ -160,6 +183,7 @@ module.exports = {
         );
         if (isEmptyRow) {
           console.warn(`Skipping empty row ${rowNumber}`);
+          skippedRows.push(rowNumber);
           continue;
         }
 
@@ -181,28 +205,20 @@ module.exports = {
         const description = row.getCell(6).value
           ? row.getCell(6).value.toString().trim()
           : "";
-        const dueDate = row.getCell(7).value
-          ? new Date(row.getCell(7).value)
+        const status = row.getCell(7).value
+          ? row.getCell(7).value.toString().trim()
+          : "";
+        const dueDate = row.getCell(8).value
+          ? new Date(row.getCell(8).value)
           : null;
-        const userNames = row.getCell(8).value
+        const userNames = row.getCell(9).value
           ? row
-              .getCell(8)
+              .getCell(9)
               .value.toString()
               .split(",")
               .map((name) => name.trim())
               .filter((name) => name !== "")
           : [];
-
-        console.log(
-          name,
-          type,
-          category,
-          renewal,
-          institutionName,
-          description,
-          dueDate,
-          userNames
-        );
 
         if (
           !name ||
@@ -211,13 +227,48 @@ module.exports = {
           !description ||
           !dueDate ||
           !institutionName ||
+          !status ||
           userNames.length === 0
         ) {
           console.warn(`Skipping row ${rowNumber} due to missing data`);
-          return res.status(400).json({
-            success: false,
-            message: `Row ${rowNumber} has missing data.`,
-          });
+          skippedRows.push(rowNumber);
+          continue;
+        }
+
+        // 🔹 Tentukan bulan dan tahun yang baru
+        let formattedName = name;
+        let nextDueDate = dueDate;
+        let nextMonthName = monthNames[nextDueDate.getMonth()]; // Ambil nama bulan berikutnya
+
+        if (category === "MONTHLY") {
+          // Jika sudah ada bulan & tahun, update keduanya
+          if (monthPattern.test(name) && yearPattern.test(name)) {
+            formattedName = name
+              .replace(monthPattern, nextMonthName)
+              .replace(yearPattern, currentYear.toString());
+          } else {
+            formattedName = `${name} - ${nextMonthName} ${currentYear}`;
+          }
+        } else {
+          // Jika bukan "MONTHLY", hanya update tahun jika sudah ada
+          if (yearPattern.test(name)) {
+            formattedName = name.replace(yearPattern, currentYear.toString());
+          } else {
+            formattedName = `${name} ${currentYear}`;
+          }
+        }
+
+        // 🔹 Cek apakah obligasi sudah ada di database
+        const existingObligation = await prisma.obligation.findFirst({
+          where: { name: formattedName, deletedAt: null, dueDate },
+        });
+
+        if (existingObligation) {
+          console.warn(
+            `Skipping duplicate obligation "${formattedName}" at row ${rowNumber}`
+          );
+          skippedRows.push(rowNumber);
+          continue;
         }
 
         const institution = await prisma.institution.findFirst({
@@ -229,10 +280,8 @@ module.exports = {
           console.warn(
             `Institution not found: ${institutionName}, skipping row ${rowNumber}`
           );
-          return res.status(400).json({
-            success: false,
-            message: `Institution "${institutionName}" not found in row ${rowNumber}.`,
-          });
+          skippedRows.push(rowNumber);
+          continue;
         }
 
         const users = await prisma.user.findMany({
@@ -250,21 +299,18 @@ module.exports = {
             `Some users not found in row ${rowNumber}:`,
             notFoundUsers
           );
-          return res.status(400).json({
-            success: false,
-            message: `Users not found in row ${rowNumber}: ${notFoundUsers.join(
-              ", "
-            )}`,
-          });
+          skippedRows.push(rowNumber);
+          continue;
         }
 
         obligationsToInsert.push({
-          name,
+          name: formattedName,
           type,
           category,
           renewal,
           institutionId: institution.id,
           description,
+          status,
           dueDate,
           users: users.map((user) => user.id),
         });
@@ -274,6 +320,7 @@ module.exports = {
         return res.status(400).json({
           success: false,
           message: "No valid data to insert.",
+          skippedRows,
         });
       }
 
@@ -288,7 +335,7 @@ module.exports = {
               institutionId: obligation.institutionId,
               description: obligation.description,
               dueDate: obligation.dueDate,
-              status: "PROCESS",
+              status: obligation.status,
             },
           });
 
@@ -308,6 +355,7 @@ module.exports = {
       return res.status(201).json({
         success: true,
         message: "Obligations imported successfully",
+        skippedRows,
       });
     } catch (error) {
       console.error(error);

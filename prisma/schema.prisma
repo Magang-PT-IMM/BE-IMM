@@ -144,6 +144,5 @@ enum obligationsCategory {
 
 enum obligationsStatus {
   PROCESS
-  VERIFICATION
   COMPLETE
 }

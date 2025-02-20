@@ -1,2 +1,209 @@
 2025-02-08T17:38:49.035Z [info]: Server is running on http://localhost:3000
 2025-02-08T17:44:18.509Z [info]: Server is running on http://localhost:3000
+2025-02-09T14:29:30.706Z [info]: Server is running on http://localhost:3000
+2025-02-09T14:36:44.373Z [info]: Server is running on http://localhost:6969
+2025-02-09T14:36:49.717Z [info]: POST /api/v1/auth/login 200 - User: Guest - Response Time: 3477.508 ms
+2025-02-09T14:37:47.971Z [info]: POST /api/v1/auth/change-password 200 - User: Pak Reno - Response Time: 2953.656 ms
+2025-02-09T14:38:19.836Z [info]: POST /api/v1/auth/change-password 200 - User: Pak Reno - Response Time: 2100.654 ms
+2025-02-09T15:43:21.984Z [info]: Server is running on http://0.0.0.0:6969
+2025-02-09T15:43:50.166Z [info]: Server is running on http://0.0.0.0:6969
+2025-02-11T17:25:57.055Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-11T17:26:26.647Z [info]: GET /api/v1/department/get-all-department 200 - User: Reno - Response Time: 4062.254 ms
+2025-02-12T02:00:29.392Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-12T02:01:15.789Z [info]: GET /api/v1/department/get-all-department 200 - User: Reno - Response Time: 5501.123 ms
+2025-02-12T02:02:24.345Z [info]: GET /api/v1/department/get-department-by-id/ad085006-0327-4ca8-bbec-bb048babed61 200 - User: Reno - Response Time: 932.438 ms
+2025-02-12T02:50:12.521Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-12T02:50:17.714Z [info]: GET /api/v1/department/get-all-department 200 - User: Reno - Response Time: 3921.490 ms
+2025-02-12T02:50:45.068Z [info]: GET /api/v1/department/get-department-by-id/8b8f420c-d754-4293-8ac5-4d5292ab8042 500 - User: Reno - Response Time: 708.484 ms
+2025-02-12T02:51:04.447Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-12T02:51:08.802Z [info]: GET /api/v1/department/get-department-by-id/8b8f420c-d754-4293-8ac5-4d5292ab8042 200 - User: Reno - Response Time: 2592.477 ms
+2025-02-12T12:37:40.637Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-12T12:38:24.800Z [info]: POST /api/v1/auth/login 404 - User: Guest - Response Time: 2512.024 ms
+2025-02-12T12:40:09.147Z [info]: POST /api/v1/auth/login 200 - User: Guest - Response Time: 1227.202 ms
+2025-02-12T12:40:51.165Z [info]: GET /api/v1/user/get-all-user 200 - User: Pak Reno - Response Time: 2512.387 ms
+2025-02-12T12:42:53.328Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-12T12:42:57.456Z [info]: GET /api/v1/user/get-all-user 500 - User: Pak Reno - Response Time: 2819.425 ms
+2025-02-12T12:43:10.797Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-12T12:43:14.604Z [info]: GET /api/v1/user/get-all-user 500 - User: Pak Reno - Response Time: 3004.701 ms
+2025-02-12T12:49:18.748Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-12T12:49:23.874Z [info]: GET /api/v1/user/get-all-user 200 - User: Pak Reno - Response Time: 4248.821 ms
+2025-02-12T12:50:04.067Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-12T12:50:09.375Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-12T12:50:43.843Z [info]: POST /api/v1/auth/login 401 - User: Guest - Response Time: 3133.888 ms
+2025-02-12T12:50:50.956Z [info]: POST /api/v1/auth/login 401 - User: Guest - Response Time: 558.420 ms
+2025-02-12T12:50:57.648Z [info]: POST /api/v1/auth/login 401 - User: Guest - Response Time: 592.070 ms
+2025-02-12T12:51:07.360Z [info]: POST /api/v1/auth/login 200 - User: Guest - Response Time: 1447.374 ms
+2025-02-12T12:51:19.571Z [info]: GET /api/v1/user/get-all-user 200 - User: admin - Response Time: 2581.739 ms
+2025-02-13T12:09:30.720Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-13T12:10:27.609Z [info]: GET /api/v1/dashboard/get-obligations-by-institution?institutionId=e2546d8f-5597-405c-83b5-3ed98172f9a4&year=2025&month=1 500 - User: Reno - Response Time: 43.929 ms
+2025-02-13T12:10:35.457Z [info]: GET /api/v1/dashboard/get-obligations-by-institution?year=2025&month=1 500 - User: Reno - Response Time: 6.805 ms
+2025-02-13T12:10:41.414Z [info]: GET /api/v1/dashboard/get-obligations-by-institution?year=2025&month=1 500 - User: Reno - Response Time: 6.825 ms
+2025-02-13T12:10:45.871Z [info]: GET /api/v1/dashboard/get-obligations-by-institution?month=1 500 - User: Reno - Response Time: 5.226 ms
+2025-02-13T12:10:53.905Z [info]: GET /api/v1/dashboard/get-obligations-by-institution 200 - User: Reno - Response Time: 2904.099 ms
+2025-02-13T12:11:05.165Z [info]: GET /api/v1/dashboard/get-obligations-by-institution?month=1 500 - User: Reno - Response Time: 4.750 ms
+2025-02-13T12:11:13.160Z [info]: GET /api/v1/dashboard/get-obligations-by-institution?institutionId=e2546d8f-5597-405c-83b5-3ed98172f9a4&year=2025&month=1 500 - User: Reno - Response Time: 5.992 ms
+2025-02-13T12:12:54.556Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-13T12:13:08.037Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-13T12:14:05.980Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-13T12:14:19.352Z [info]: GET /api/v1/dashboard/get-obligations-by-institution?institutionId=e2546d8f-5597-405c-83b5-3ed98172f9a4&year=2025&month=1 500 - User: Reno - Response Time: 5045.658 ms
+2025-02-13T12:14:30.478Z [info]: GET /api/v1/dashboard/get-obligations-by-institution?institutionId=e2546d8f-5597-405c-83b5-3ed98172f9a4&year=2025&month=1 500 - User: Reno - Response Time: 5010.113 ms
+2025-02-13T12:14:40.983Z [info]: GET /api/v1/dashboard/get-obligations-by-institution?year=2025&month=1 500 - User: Reno - Response Time: 5011.718 ms
+2025-02-13T12:14:58.209Z [info]: GET /api/v1/dashboard/get-obligations-by-institution?month=1 500 - User: Reno - Response Time: 5012.349 ms
+2025-02-13T12:15:06.615Z [info]: GET /api/v1/dashboard/get-obligations-by-institution 500 - User: Reno - Response Time: 5014.814 ms
+2025-02-13T12:50:22.212Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-13T12:50:53.115Z [info]: GET /api/v1/dashboard/get-obligations-by-institution?year=2025&month=2  - User: Reno - Response Time:  ms
+2025-02-13T12:50:57.852Z [info]: GET /api/v1/dashboard/get-obligations-by-institution?year=2025&month=2 200 - User: Reno - Response Time: 772.788 ms
+2025-02-13T12:51:06.798Z [info]: GET /api/v1/dashboard/get-obligations-by-institution?year=2025&month=2 200 - User: Reno - Response Time: 778.719 ms
+2025-02-13T12:51:24.441Z [info]: GET /api/v1/dashboard/get-obligations-by-institution?month=2 200 - User: Reno - Response Time: 1152.146 ms
+2025-02-13T12:51:32.465Z [info]: GET /api/v1/dashboard/get-obligations-by-institution?institutionId=e2546d8f-5597-405c-83b5-3ed98172f9a4 200 - User: Reno - Response Time: 1002.650 ms
+2025-02-13T12:51:43.076Z [info]: GET /api/v1/dashboard/get-obligations-by-institution?institutionId=e2546d8f-5597-405c-83b5-3ed98172f9a4&year=2025 200 - User: Reno - Response Time: 735.412 ms
+2025-02-13T12:53:22.333Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-13T12:53:26.996Z [info]: GET /api/v1/dashboard/get-obligations-by-institution?institutionId=e2546d8f-5597-405c-83b5-3ed98172f9a4&year=2025 200 - User: Reno - Response Time: 3702.202 ms
+2025-02-13T12:53:38.120Z [info]: GET /api/v1/dashboard/get-obligations-by-institution?year=2025 200 - User: Reno - Response Time: 1394.841 ms
+2025-02-13T12:54:39.539Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-13T12:55:19.107Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-13T12:57:10.014Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-13T12:57:22.168Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-13T12:58:40.549Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-13T13:00:53.977Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-13T13:01:06.399Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-13T13:01:22.645Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-13T13:01:34.684Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-13T13:01:42.866Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-13T13:01:56.477Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-13T13:02:13.741Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-13T13:02:20.071Z [info]: GET /api/v1/dashboard/get-obligations-by-institution?year=2025 200 - User: Reno - Response Time: 3376.361 ms
+2025-02-13T13:02:25.372Z [info]: GET /api/v1/dashboard/get-obligations-by-institution?year=2025 200 - User: Reno - Response Time: 724.218 ms
+2025-02-13T13:03:15.606Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-13T13:03:27.563Z [info]: GET /api/v1/dashboard/get-obligations-by-institution?year=2025 200 - User: Reno - Response Time: 4058.070 ms
+2025-02-13T13:03:34.547Z [info]: GET /api/v1/dashboard/get-obligations-by-institution?year=2025&month=2 200 - User: Reno - Response Time: 771.878 ms
+2025-02-13T13:04:29.512Z [info]: GET /api/v1/dashboard/get-obligations-by-institution?institutionId=0a5ea53c-d225-4037-90a8-7cf6fb9bd879&year=2025&month=2 200 - User: Reno - Response Time: 1717.132 ms
+2025-02-13T13:04:38.834Z [info]: GET /api/v1/dashboard/get-obligations-by-institution?institutionId=0a5ea53c-d225-4037-90a8-7cf6fb9bd879&year=2025&month=3 200 - User: Reno - Response Time: 514.808 ms
+2025-02-13T13:04:45.050Z [info]: GET /api/v1/dashboard/get-obligations-by-institution?institutionId=0a5ea53c-d225-4037-90a8-7cf6fb9bd879&year=2025&month=5 200 - User: Reno - Response Time: 715.916 ms
+2025-02-13T13:05:14.030Z [info]: GET /api/v1/dashboard/get-obligations-by-institution?year=2025&month=5 200 - User: Reno - Response Time: 1003.822 ms
+2025-02-13T13:17:07.741Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-13T13:17:17.484Z [info]: GET /api/v1/dashboard/get-obligations-by-institution?year=2025&month=5 200 - User: Reno - Response Time: 3562.508 ms
+2025-02-13T13:17:40.245Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-13T13:17:45.444Z [info]: GET /api/v1/dashboard/get-obligations-by-institution?year=2025&month=5 200 - User: Reno - Response Time: 4104.508 ms
+2025-02-13T13:20:11.782Z [info]: GET /api/v1/dashboard/get-obligations-by-department?month=1&year=2025 200 - User: Reno - Response Time: 1693.333 ms
+2025-02-13T13:21:00.354Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-13T13:21:04.392Z [info]: GET /api/v1/dashboard/get-obligations-by-institution?year=2025&month=5 401 - User: Guest - Response Time: 11.913 ms
+2025-02-13T13:21:27.862Z [info]: GET /api/v1/dashboard/get-obligations-by-institution?year=2025&month=5 200 - User: Reno - Response Time: 3822.985 ms
+2025-02-13T13:22:23.705Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-13T13:22:30.952Z [info]: GET /api/v1/dashboard/get-obligations-by-institution?year=2025&month=5 200 - User: Reno - Response Time: 3389.015 ms
+2025-02-13T13:23:13.961Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-13T13:23:37.898Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-13T13:23:41.640Z [info]: GET /api/v1/dashboard/get-obligations-by-institution?year=2025&month=5 200 - User: Reno - Response Time: 3434.054 ms
+2025-02-13T13:24:13.288Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-13T13:24:19.238Z [info]: GET /api/v1/dashboard/get-obligations-by-institution?year=2025&month=5 200 - User: Reno - Response Time: 3386.976 ms
+2025-02-13T13:28:06.370Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-13T13:28:15.386Z [info]: GET /api/v1/dashboard/get-obligations-by-institution?year=2025&month=5 200 - User: Reno - Response Time: 3211.260 ms
+2025-02-13T13:28:42.814Z [info]: GET /api/v1/dashboard/get-obligations-by-institution?year=2025&month=1 200 - User: Reno - Response Time: 1007.115 ms
+2025-02-13T13:29:11.773Z [info]: GET /api/v1/dashboard/get-obligations-by-institution?institutionId=0a5ea53c-d225-4037-90a8-7cf6fb9bd879&year=2025&month=1 200 - User: Reno - Response Time: 1175.103 ms
+2025-02-13T13:33:50.244Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-13T13:34:35.113Z [info]: GET /api/v1/dashboard/get-obligations-by-institution?year=2025&month=1 500 - User: Reno - Response Time: 5021.886 ms
+2025-02-13T13:34:55.084Z [info]: GET /api/v1/dashboard/get-obligations-by-institution?year=2025&month=1 200 - User: Reno - Response Time: 3712.086 ms
+2025-02-13T13:35:03.175Z [info]: GET /api/v1/dashboard/get-obligations-by-institution?year=2025&month=2 200 - User: Reno - Response Time: 1253.049 ms
+2025-02-13T13:35:14.502Z [info]: GET /api/v1/dashboard/get-obligations-by-institution?year=2025&month=3 200 - User: Reno - Response Time: 1084.299 ms
+2025-02-13T13:35:20.132Z [info]: GET /api/v1/dashboard/get-obligations-by-institution?year=2025&month=4 200 - User: Reno - Response Time: 758.184 ms
+2025-02-13T13:35:26.144Z [info]: GET /api/v1/dashboard/get-obligations-by-institution?year=2025&month=5 200 - User: Reno - Response Time: 1126.939 ms
+2025-02-13T13:35:31.484Z [info]: GET /api/v1/dashboard/get-obligations-by-institution?year=2025&month=6 200 - User: Reno - Response Time: 1199.444 ms
+2025-02-13T13:35:36.115Z [info]: GET /api/v1/dashboard/get-obligations-by-institution?year=2025&month=7 200 - User: Reno - Response Time: 714.430 ms
+2025-02-13T13:35:42.327Z [info]: GET /api/v1/dashboard/get-obligations-by-institution?year=2025&month=8 200 - User: Reno - Response Time: 749.980 ms
+2025-02-13T13:35:47.782Z [info]: GET /api/v1/dashboard/get-obligations-by-institution?year=2025&month=9 200 - User: Reno - Response Time: 1000.254 ms
+2025-02-13T13:35:53.275Z [info]: GET /api/v1/dashboard/get-obligations-by-institution?year=2025&month=10 200 - User: Reno - Response Time: 1219.553 ms
+2025-02-13T13:36:02.318Z [info]: GET /api/v1/dashboard/get-obligations-by-institution?year=2025&month=2 200 - User: Reno - Response Time: 1324.414 ms
+2025-02-13T13:36:12.360Z [info]: GET /api/v1/dashboard/get-obligations-by-institution?year=2025 200 - User: Reno - Response Time: 7013.313 ms
+2025-02-13T13:36:21.334Z [info]: GET /api/v1/dashboard/get-obligations-by-institution?institutionId=0a5ea53c-d225-4037-90a8-7cf6fb9bd879&year=2025&month=2 200 - User: Reno - Response Time: 1643.485 ms
+2025-02-13T13:37:21.074Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-13T13:37:36.705Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-13T13:38:47.907Z [info]: GET /api/v1/dashboard/get-obligations-by-department?month=1&year=2025 401 - User: Guest - Response Time: 9.763 ms
+2025-02-13T13:39:04.295Z [info]: GET /api/v1/dashboard/get-obligations-by-department?month=1&year=2025 200 - User: Reno - Response Time: 3577.897 ms
+2025-02-13T13:39:13.269Z [info]: GET /api/v1/dashboard/get-obligations-by-department?departmentId=af775e1f-2d01-483d-88a9-fa9ca41084b9&month=1&year=2025 200 - User: Reno - Response Time: 1059.757 ms
+2025-02-13T13:39:19.539Z [info]: GET /api/v1/dashboard/get-obligations-by-department?month=1&year=2025 200 - User: Reno - Response Time: 936.653 ms
+2025-02-13T13:41:10.940Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-13T13:41:21.392Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-13T13:41:49.828Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-13T13:42:19.785Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-13T13:42:37.062Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-13T13:43:24.392Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-13T13:43:49.166Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-13T13:46:21.005Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-13T13:47:32.798Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-13T13:48:01.225Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-13T13:48:59.075Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-13T13:49:24.869Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-13T13:49:42.063Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-13T13:50:03.913Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-13T13:50:15.163Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-13T13:50:45.162Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-13T13:50:51.134Z [info]: GET /api/v1/dashboard/get-obligations-by-department?month=1&year=2025 200 - User: Reno - Response Time: 4758.186 ms
+2025-02-13T13:50:58.423Z [info]: GET /api/v1/dashboard/get-obligations-by-department?year=2025 200 - User: Reno - Response Time: 1165.951 ms
+2025-02-13T13:55:40.432Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-13T13:56:33.443Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-13T13:56:40.373Z [info]: GET /api/v1/dashboard/get-obligations-by-department?year=2025 200 - User: Reno - Response Time: 4248.879 ms
+2025-02-13T13:57:13.613Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-13T13:57:19.501Z [info]: GET /api/v1/dashboard/get-obligations-by-department?year=2025 200 - User: Reno - Response Time: 4335.083 ms
+2025-02-13T13:57:36.291Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-13T13:57:41.772Z [info]: GET /api/v1/dashboard/get-obligations-by-department?year=2025 200 - User: Reno - Response Time: 3777.782 ms
+2025-02-13T14:03:26.518Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-13T14:03:33.748Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-13T14:03:42.552Z [info]: GET /api/v1/dashboard/get-obligations-by-department?year=2025 200 - User: Reno - Response Time: 6100.360 ms
+2025-02-13T14:07:52.048Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-13T14:08:27.174Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-13T14:08:43.476Z [info]: GET /api/v1/dashboard/get-obligations-by-department?year=2025 500 - User: Reno - Response Time: 5028.264 ms
+2025-02-13T14:08:54.587Z [info]: GET /api/v1/dashboard/get-obligations-by-department?year=2025 500 - User: Reno - Response Time: 5021.388 ms
+2025-02-13T14:09:01.799Z [info]: GET /api/v1/dashboard/get-obligations-by-department?year=2025 500 - User: Reno - Response Time: 5006.248 ms
+2025-02-13T14:09:09.796Z [info]: GET /api/v1/dashboard/get-obligations-by-department?year=2025 500 - User: Reno - Response Time: 5016.471 ms
+2025-02-13T14:09:16.487Z [info]: GET /api/v1/dashboard/get-obligations-by-department?year=2025 500 - User: Reno - Response Time: 5017.679 ms
+2025-02-13T14:09:24.221Z [info]: GET /api/v1/dashboard/get-obligations-by-department?year=2025 500 - User: Reno - Response Time: 5015.434 ms
+2025-02-13T14:09:41.446Z [info]: GET /api/v1/dashboard/get-obligations-by-department?year=2025 200 - User: Reno - Response Time: 7627.001 ms
+2025-02-13T14:12:01.520Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-13T14:13:17.891Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-13T14:13:31.983Z [info]: GET /api/v1/dashboard/get-obligations-by-department?year=2025 200 - User: Reno - Response Time: 7692.325 ms
+2025-02-13T14:14:24.509Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-13T14:14:30.554Z [info]: GET /api/v1/dashboard/get-obligations-by-department?year=2025 500 - User: Reno - Response Time: 5025.042 ms
+2025-02-13T14:14:39.068Z [info]: GET /api/v1/dashboard/get-obligations-by-department?year=2025 200 - User: Reno - Response Time: 6491.372 ms
+2025-02-13T14:15:31.896Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-13T14:18:03.059Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-13T14:18:24.550Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-13T14:18:31.004Z [info]: GET /api/v1/dashboard/get-obligations-by-department?year=2025 500 - User: Reno - Response Time: 5042.129 ms
+2025-02-13T14:18:39.339Z [info]: GET /api/v1/dashboard/get-obligations-by-department?year=2025 500 - User: Reno - Response Time: 5012.755 ms
+2025-02-13T14:18:46.582Z [info]: GET /api/v1/dashboard/get-obligations-by-department?year=2025 500 - User: Reno - Response Time: 5008.413 ms
+2025-02-13T14:18:54.649Z [info]: GET /api/v1/dashboard/get-obligations-by-department?year=2025 500 - User: Reno - Response Time: 5009.167 ms
+2025-02-13T14:19:02.568Z [info]: GET /api/v1/dashboard/get-obligations-by-department?year=2025 500 - User: Reno - Response Time: 5007.332 ms
+2025-02-13T14:19:10.818Z [info]: GET /api/v1/dashboard/get-obligations-by-department?year=2025 500 - User: Reno - Response Time: 5989.639 ms
+2025-02-13T14:20:25.031Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-13T14:26:03.473Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-13T14:27:03.545Z [info]: GET /api/v1/dashboard/get-obligations-by-department?year=2025 401 - User: Guest - Response Time: 13.398 ms
+2025-02-13T14:27:16.332Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-13T14:27:50.279Z [info]: GET /api/v1/dashboard/get-obligations-by-department?year=2025 500 - User: Reno - Response Time: 5041.260 ms
+2025-02-13T14:28:10.746Z [info]: GET /api/v1/dashboard/get-obligations-by-department?year=2025 200 - User: Reno - Response Time: 17209.009 ms
+2025-02-13T14:31:36.493Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-13T14:31:45.847Z [info]: GET /api/v1/dashboard/get-obligations-by-department?month=1&year=2025 200 - User: Reno - Response Time: 4354.872 ms
+2025-02-13T14:32:44.945Z [info]: GET /api/v1/dashboard/get-obligations-by-department?month=2&year=2025 200 - User: Reno - Response Time: 53486.264 ms
+2025-02-13T14:33:47.863Z [info]: GET /api/v1/dashboard/get-obligations-by-department?month=10&year=2025 500 - User: Reno - Response Time: 10012.858 ms
+2025-02-13T14:33:59.918Z [info]: GET /api/v1/dashboard/get-obligations-by-department?month=10&year=2025 500 - User: Reno - Response Time: 5011.129 ms
+2025-02-13T14:34:06.954Z [info]: GET /api/v1/dashboard/get-obligations-by-department?month=10&year=2025 500 - User: Reno - Response Time: 5011.220 ms
+2025-02-13T14:34:13.932Z [info]: GET /api/v1/dashboard/get-obligations-by-department?month=10&year=2025 500 - User: Reno - Response Time: 5012.740 ms
+2025-02-13T14:34:21.404Z [info]: GET /api/v1/dashboard/get-obligations-by-department?month=10&year=2025 500 - User: Reno - Response Time: 1014.105 ms
+2025-02-13T14:34:36.081Z [info]: GET /api/v1/dashboard/get-obligations-by-department?month=10&year=2025 500 - User: Reno - Response Time: 5006.739 ms
+2025-02-13T14:35:10.357Z [info]: GET /api/v1/dashboard/get-obligations-by-department?month=10&year=2025 200 - User: Reno - Response Time: 3557.578 ms
+2025-02-13T14:35:33.338Z [info]: GET /api/v1/dashboard/get-obligations-by-department?month=2&year=2025 500 - User: Reno - Response Time: 5019.153 ms
+2025-02-13T14:36:13.008Z [info]: GET /api/v1/dashboard/get-obligations-by-department?month=2&year=2025 500 - User: Reno - Response Time: 5018.096 ms
+2025-02-13T14:36:21.059Z [info]: GET /api/v1/dashboard/get-obligations-by-department?month=2&year=2025 200 - User: Reno - Response Time: 4738.037 ms
+2025-02-13T14:36:41.900Z [info]: GET /api/v1/dashboard/get-obligations-by-department?departmentId=b20602b2-5ac7-49e9-8bdc-ffaa9bd373ad&month=2&year=2025 200 - User: Reno - Response Time: 4775.408 ms
+2025-02-14T02:43:59.936Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-14T02:44:27.434Z [info]: GET /api/v1/dashboard/get-obligations-by-month 200 - User: Reno - Response Time: 2428.524 ms
+2025-02-14T03:22:32.662Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-14T03:30:43.655Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-14T03:30:51.075Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-14T03:42:03.552Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-14T03:42:08.686Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-14T03:42:13.996Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-17T16:45:02.573Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-17T16:46:02.879Z [info]: POST /api/v1/obligation/upload-obligation 400 - User: Guest - Response Time: 3572.734 ms
+2025-02-17T16:47:21.863Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-17T16:47:42.593Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-18T17:12:43.597Z [info]: Server is running on http://0.0.0.0:5000
+2025-02-18T17:12:57.304Z [info]: GET /api/v1/obligation/get-obligation-by-user-id 200 - User: Nuralim - Response Time: 2497.565 ms

@@ -83,66 +83,119 @@ module.exports = {
       const selectedYear = parseInt(year) || new Date().getFullYear();
       const selectedMonth = parseInt(month);
 
+      let startDate = new Date(`${selectedYear}-01-01`);
+      let endDate = new Date(`${selectedYear + 1}-01-01`);
+
+      if (selectedMonth) {
+        startDate = new Date(
+          `${selectedYear}-${String(selectedMonth).padStart(2, "0")}-01`
+        );
+        endDate = new Date(
+          `${selectedYear}-${String(selectedMonth + 1).padStart(2, "0")}-01`
+        );
+      }
+
       if (!institutionId) {
-        const obligationsByInstitution = await prisma.obligation.groupBy({
-          by: ["institutionId"],
-          _count: { id: true },
-          where: {
-            deletedAt: null,
-            createdAt: {
-              gte: new Date(`${selectedYear}-01-01`),
-              lt: new Date(`${selectedYear + 1}-01-01`),
+        const obligationsByInstitutionRaw =
+          await prisma.userObligation.findMany({
+            where: {
+              deletedAt: null,
+              obligation: {
+                institutionId: { not: null },
+                createdAt: {
+                  gte: startDate,
+                  lt: endDate,
+                },
+              },
             },
+            select: { obligationId: true },
+          });
+
+        const uniqueObligationIds = [
+          ...new Set(obligationsByInstitutionRaw.map((o) => o.obligationId)),
+        ];
+
+        const obligations = await prisma.obligation.findMany({
+          where: {
+            id: { in: uniqueObligationIds },
           },
+          select: { id: true, institutionId: true },
         });
 
         const institutions = await prisma.institution.findMany({
           where: {
-            id: { in: obligationsByInstitution.map((o) => o.institutionId) },
+            id: {
+              in: obligations
+                .map((obligation) => obligation.institutionId)
+                .filter(Boolean),
+            },
           },
           select: { id: true, name: true },
         });
 
-        const obligationsByInstitutionMapped = obligationsByInstitution.map(
-          (o) => ({
-            institution_id: o.institutionId,
-            institution_name:
-              institutions.find((inst) => inst.id === o.institutionId)?.name ||
-              "Unknown",
-            total: o._count.id,
-          })
+        const obligationsByInstitutionMapped = obligations.reduce(
+          (acc, obligation) => {
+            if (!obligation.institutionId) return acc;
+
+            const institution = institutions.find(
+              (d) => d.id === obligation.institutionId
+            );
+            const institutionName = institution ? institution.name : "Unknown";
+
+            const existing = acc.find(
+              (item) => item.institution_id === obligation.institutionId
+            );
+            if (existing) {
+              existing.total += 1;
+            } else {
+              acc.push({
+                institution_id: obligation.institutionId,
+                institution_name: institutionName,
+                total: 1,
+              });
+            }
+            return acc;
+          },
+          []
         );
 
         return res.json({
           year: selectedYear,
+          month: selectedMonth || "All Months",
           obligationsByInstitution: obligationsByInstitutionMapped,
         });
       }
 
       const whereCondition = {
         deletedAt: null,
-        institutionId,
-        createdAt: {
-          gte: new Date(`${selectedYear}-01-01`),
-          lt: new Date(`${selectedYear + 1}-01-01`),
+        obligation: {
+          institutionId,
+          createdAt: {
+            gte: new Date(`${selectedYear}-01-01`),
+            lt: new Date(`${selectedYear + 1}-01-01`),
+          },
+          status: { in: ["PROCESS", "COMPLETE"] },
         },
-        status: { in: ["PROCESS", "COMPLETE"] },
       };
 
       if (selectedMonth) {
-        whereCondition.createdAt.gte = new Date(
+        whereCondition.obligation.createdAt.gte = new Date(
           `${selectedYear}-${selectedMonth}-01`
         );
-        whereCondition.createdAt.lt = new Date(
+        whereCondition.obligation.createdAt.lt = new Date(
           `${selectedYear}-${selectedMonth + 1}-01`
         );
       }
 
-      const obligations = await prisma.obligation.findMany({
+      const obligations = await prisma.userObligation.findMany({
         where: whereCondition,
-        select: {
-          status: true,
-          itsOverdue: true,
+        include: {
+          obligation: {
+            select: {
+              status: true,
+              itsOverdue: true,
+            },
+          },
         },
       });
 
@@ -152,12 +205,12 @@ module.exports = {
       };
 
       obligations.forEach((o) => {
-        if (o.status === "PROCESS") {
-          o.itsOverdue
+        if (o.obligation.status === "PROCESS") {
+          o.obligation.itsOverdue
             ? statusOverdueCounts.PROCESS.overdue++
             : statusOverdueCounts.PROCESS.notOverdue++;
-        } else if (o.status === "COMPLETE") {
-          o.itsOverdue
+        } else if (o.obligation.status === "COMPLETE") {
+          o.obligation.itsOverdue
             ? statusOverdueCounts.COMPLETE.overdue++
             : statusOverdueCounts.COMPLETE.notOverdue++;
         }
@@ -178,61 +231,87 @@ module.exports = {
       next(error);
     }
   },
+
   getObligationsByDepartment: async (req, res, next) => {
     try {
       const { departmentId, month, year } = req.query;
       const selectedYear = parseInt(year) || new Date().getFullYear();
       const selectedMonth = parseInt(month);
 
+      let startDate = new Date(`${selectedYear}-01-01`);
+      let endDate = new Date(`${selectedYear + 1}-01-01`);
+
+      if (selectedMonth) {
+        startDate = new Date(
+          `${selectedYear}-${String(selectedMonth).padStart(2, "0")}-01`
+        );
+        endDate = new Date(
+          `${selectedYear}-${String(selectedMonth + 1).padStart(2, "0")}-01`
+        );
+      }
+
       if (!departmentId) {
-        const obligationsByDepartment = await prisma.userObligation.groupBy({
-          by: ["userId"],
-          _count: { id: true },
-          where: {
-            deletedAt: null,
-            obligation: {
-              createdAt: {
-                gte: new Date(`${selectedYear}-01-01`),
-                lt: new Date(`${selectedYear + 1}-01-01`),
+        const obligationsByDepartmentRaw = await prisma.userObligation.findMany(
+          {
+            where: {
+              deletedAt: null,
+              obligation: {
+                createdAt: {
+                  gte: startDate,
+                  lt: endDate,
+                },
               },
             },
-          },
-        });
+            select: {
+              user: {
+                select: { id: true, departmentId: true },
+              },
+              obligationId: true,
+            },
+          }
+        );
 
-        const users = await prisma.user.findMany({
-          where: {
-            id: { in: obligationsByDepartment.map((o) => o.userId) },
-          },
-          select: { id: true, departmentId: true },
-        });
+        console.log(obligationsByDepartmentRaw);
+
+        const uniqueDepartmentObligations = [
+          ...new Set(
+            obligationsByDepartmentRaw.map(
+              (o) => `${o.user.departmentId}-${o.obligationId}`
+            )
+          ),
+        ];
+
+        console.log(uniqueDepartmentObligations);
 
         const departments = await prisma.department.findMany({
           where: {
-            id: { in: users.map((user) => user.departmentId).filter(Boolean) },
+            id: {
+              in: obligationsByDepartmentRaw
+                .map((o) => o.user.departmentId)
+                .filter(Boolean),
+            },
           },
           select: { id: true, name: true },
         });
 
-        const obligationsByDepartmentMapped = obligationsByDepartment.map(
-          (o) => {
-            const user = users.find((u) => u.id === o.userId);
-            const departmentName =
-              departments.find((d) => d.id === user?.departmentId)?.name ||
-              "Unknown";
-            return {
-              department_id: user?.departmentId || "Unknown",
-              department_name: departmentName,
-              total: o._count.id,
-            };
-          }
-        );
+        const obligationsByDepartmentMapped = departments.map((department) => {
+          const totalObligations = uniqueDepartmentObligations.filter((uo) =>
+            uo.startsWith(department.id)
+          ).length;
+
+          return {
+            department_id: department.id,
+            department_name: department.name,
+            total: totalObligations,
+          };
+        });
 
         return res.json({
           year: selectedYear,
+          month: selectedMonth || "All Months",
           obligationsByDepartment: obligationsByDepartmentMapped,
         });
       }
-
       const whereCondition = {
         deletedAt: null,
         user: {
@@ -240,21 +319,12 @@ module.exports = {
         },
         obligation: {
           createdAt: {
-            gte: new Date(`${selectedYear}-01-01`),
-            lt: new Date(`${selectedYear + 1}-01-01`),
+            gte: startDate,
+            lt: endDate,
           },
           status: { in: ["PROCESS", "COMPLETE"] },
         },
       };
-
-      if (selectedMonth) {
-        whereCondition.obligation.createdAt.gte = new Date(
-          `${selectedYear}-${selectedMonth}-01`
-        );
-        whereCondition.obligation.createdAt.lt = new Date(
-          `${selectedYear}-${selectedMonth + 1}-01`
-        );
-      }
 
       const obligations = await prisma.userObligation.findMany({
         where: whereCondition,

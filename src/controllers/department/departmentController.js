@@ -52,6 +52,7 @@ module.exports = {
       const data = {
         id: department.id,
         name: department.name,
+        id_parentDepartment: department.parentDepartmentId || null,
         parentDepartment: department.parentDepartment
           ? department.parentDepartment.name
           : null,
@@ -117,6 +118,19 @@ module.exports = {
       if (!findDepartment) {
         throw createError(404, "Department not found");
       }
+
+      const findDepartmentAlreadyExists = await prisma.department.findFirst({
+        where: {
+          name,
+          deletedAt: null,
+          NOT: { id },
+        },
+      });
+
+      if (findDepartmentAlreadyExists) {
+        throw createError(409, "Department already exists");
+      }
+
       let parentDepartment = null;
       if (parentDepartmentId) {
         parentDepartment = await prisma.department.findUnique({

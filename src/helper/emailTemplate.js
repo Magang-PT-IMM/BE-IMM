@@ -1,3 +1,5 @@
+const { FE_URL } = require("../config/index");
+
 const emailTemplates = {
   generatedPassword: (email, password, name) => ({
     from: `"IMM Remember" <friilim19@gmail.com>`,
@@ -47,7 +49,7 @@ const emailTemplates = {
                 </p>
                 <!-- Button -->
                 <p style="text-align: center; margin: 0 0 20px;">
-                  <a href="https://your-login-link.com" 
+                  <a href="${FE_URL}auth/login"
                      style="display: inline-block; background-color: #482f92; color: #ffffff; padding: 10px 30px; text-decoration: none; border-radius: 4px; font-size: 14px;">Login</a>
                 </p>
                 <p style="margin: 0 0 16px; font-size: 12px; color: #637381;">
@@ -118,7 +120,7 @@ const emailTemplates = {
                 </p>
                 <!-- Button -->
                 <p style="text-align: center; margin: 0 0 20px;">
-                  <a href="https://your-login-link.com" 
+                  <a href="${FE_URL}auth/login"
                      style="display: inline-block; background-color: #482f92; color: #ffffff; padding: 10px 30px; text-decoration: none; border-radius: 4px; font-size: 14px;">Login</a>
                 </p>
                 <p style="margin: 0 0 16px; font-size: 12px; color: #637381;">

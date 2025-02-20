@@ -56,6 +56,13 @@ module.exports = {
 
       await prisma.$transaction(async (prisma) => {
         if (role === "PIC") {
+          await prisma.obligation.update({
+            where: { id: obligationId },
+            data: {
+              latestUpdate: new Date(),
+              updatedAt: new Date(),
+            },
+          });
           const totalUsers = await prisma.userObligation.count({
             where: { obligationId },
           });
@@ -116,18 +123,65 @@ module.exports = {
             });
 
             if (obligation.renewal) {
+              const currentYear = new Date().getFullYear();
               const nextDueDate =
                 obligation.category === "MONTHLY"
-                  ? setDate(addMonths(obligation.dueDate, 1), 10)
+                  ? setDate(addMonths(obligation.dueDate, 1), 10) // Pindahkan ke bulan berikutnya
                   : new Date(
                       obligation.dueDate.setFullYear(
                         obligation.dueDate.getFullYear() + 1
                       )
                     );
 
+              let newObligationName = obligation.name;
+              const yearPattern = /\b\d{4}\b/; // Pola untuk mendeteksi tahun dalam nama
+              const monthPattern =
+                /\b(January|February|March|April|May|June|July|August|September|October|November|December)\b/; // Pola untuk bulan
+
+              const monthNames = [
+                "January",
+                "February",
+                "March",
+                "April",
+                "May",
+                "June",
+                "July",
+                "August",
+                "September",
+                "October",
+                "November",
+                "December",
+              ];
+              const nextMonthName = monthNames[nextDueDate.getMonth()]; // Ambil nama bulan berdasarkan indeks
+
+              if (obligation.category === "MONTHLY") {
+                // 🔹 Jika sudah ada bulan & tahun, update keduanya
+                if (
+                  monthPattern.test(obligation.name) &&
+                  yearPattern.test(obligation.name)
+                ) {
+                  newObligationName = obligation.name
+                    .replace(monthPattern, nextMonthName)
+                    .replace(yearPattern, currentYear.toString());
+                } else {
+                  // 🔹 Jika belum ada bulan & tahun, tambahkan di akhir nama
+                  newObligationName = `${obligation.name} - ${nextMonthName} ${currentYear}`;
+                }
+              } else {
+                // 🔹 Jika bukan "MONTHLY", hanya ganti tahun jika sudah ada
+                if (yearPattern.test(obligation.name)) {
+                  newObligationName = obligation.name.replace(
+                    yearPattern,
+                    currentYear.toString()
+                  );
+                } else {
+                  newObligationName = `${obligation.name} ${currentYear}`;
+                }
+              }
+
               const newObligation = await prisma.obligation.create({
                 data: {
-                  name: obligation.name,
+                  name: newObligationName,
                   type: obligation.type,
                   category: obligation.category,
                   institutionId: obligation.institutionId,
@@ -141,10 +195,12 @@ module.exports = {
               const userObligations = await prisma.userObligation.findMany({
                 where: { obligationId },
               });
+
               const newUserObligations = userObligations.map((uo) => ({
                 userId: uo.userId,
                 obligationId: newObligation.id,
               }));
+
               await prisma.userObligation.createMany({
                 data: newUserObligations,
               });

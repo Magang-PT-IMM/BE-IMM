@@ -10,7 +10,7 @@ router.get("/profile-user", authMiddleware, user.userProfile);
 router.get(
   "/get-all-user",
   authMiddleware,
-  roleMiddleware("ADMIN"),
+  roleMiddleware("ADMIN", "MANAGEMENT", "HEAD_DEPT"),
   user.getAllUser
 );
 
@@ -31,7 +31,7 @@ router.get(
 router.put(
   "/update-user/:id",
   authMiddleware,
-  roleMiddleware("ADMIN"),
+  roleMiddleware("ADMIN", "HEAD_DEPT"),
   user.updateUser
 );
 
